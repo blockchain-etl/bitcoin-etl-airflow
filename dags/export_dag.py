@@ -17,8 +17,7 @@ def get_boolean_env_variable(env_variable_name, default=True):
 
 default_dag_args = {
     'depends_on_past': False,
-    'start_date': datetime(2015, 8, 1),
-    'end_date': datetime(2015, 8, 3),
+    'start_date': datetime(2009, 1, 3),
     'email_on_failure': True,
     'email_on_retry': True,
     'retries': 5,
