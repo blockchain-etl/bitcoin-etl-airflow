@@ -6,13 +6,13 @@ import os
 import time
 from datetime import datetime, timedelta
 
-from airflow import models
+from airflow import DAG
 from airflow.contrib.operators.bigquery_operator import BigQueryOperator
 from airflow.contrib.sensors.gcs_sensor import GoogleCloudStorageObjectSensor
 from airflow.operators.email_operator import EmailOperator
 from airflow.operators.python_operator import PythonOperator
-from google.cloud import bigquery
-from google.cloud.bigquery import TimePartitioning
+from google.cloud.bigquery import TimePartitioning, SchemaField, Client, LoadJobConfig
+from google.cloud.bigquery.job import SourceFormat
 
 logging.basicConfig()
 logging.getLogger().setLevel(logging.DEBUG)
@@ -53,7 +53,7 @@ def read_bigquery_schema_from_json(json_schema):
     result = []
     for field in json_schema:
         if field.get('type').lower() == 'record' and field.get('fields'):
-            schema = bigquery.SchemaField(
+            schema = SchemaField(
                 name=field.get('name'),
                 field_type=field.get('type', 'STRING'),
                 mode=field.get('mode', 'NULLABLE'),
@@ -61,7 +61,7 @@ def read_bigquery_schema_from_json(json_schema):
                 fields=read_bigquery_schema_from_json(field.get('fields'))
                 )
         else:
-            schema = bigquery.SchemaField(
+            schema = SchemaField(
                 name=field.get('name'),
                 field_type=field.get('type', 'STRING'),
                 mode=field.get('mode', 'NULLABLE'),
@@ -105,7 +105,7 @@ if notification_emails and len(notification_emails) > 0:
     default_dag_args['email'] = [email.strip() for email in notification_emails.split(',')]
 
 # Define a DAG (directed acyclic graph) of tasks.
-dag = models.DAG(
+dag = DAG(
     'bitcoinetl_load_dag',
     catchup=False,
     # Daily at 1:30am
@@ -131,11 +131,11 @@ def add_load_tasks(task, file_format, allow_quoted_newlines=False):
     )
 
     def load_task():
-        client = bigquery.Client()
-        job_config = bigquery.LoadJobConfig()
+        client = Client()
+        job_config = LoadJobConfig()
         schema_path = os.path.join(dags_folder, 'resources/stages/raw/schemas/{task}.json'.format(task=task))
         job_config.schema = read_bigquery_schema_from_file(schema_path)
-        job_config.source_format = bigquery.SourceFormat.CSV if file_format == 'csv' else bigquery.SourceFormat.NEWLINE_DELIMITED_JSON
+        job_config.source_format = SourceFormat.CSV if file_format == 'csv' else SourceFormat.NEWLINE_DELIMITED_JSON
         if file_format == 'csv':
             job_config.skip_leading_rows = 1
         job_config.write_disposition = 'WRITE_TRUNCATE'
@@ -175,14 +175,14 @@ load_transactions_task = add_load_tasks('transactions_raw', 'json')
 # verify_transactions_have_latest_task = add_verify_tasks('transactions_have_latest', [enrich_transactions_task])
 
 
-if notification_emails and len(notification_emails) > 0:
-    send_email_task = EmailOperator(
-        task_id='send_email',
-        to=[email.strip() for email in notification_emails.split(',')],
-        subject='Bitcoin ETL Airflow Load DAG Succeeded',
-        html_content='Bitcoin ETL Airflow Load DAG Succeeded',
-        dag=dag
-    )
+# if notification_emails and len(notification_emails) > 0:
+#     send_email_task = EmailOperator(
+#         task_id='send_email',
+#         to=[email.strip() for email in notification_emails.split(',')],
+#         subject='Bitcoin ETL Airflow Load DAG Succeeded',
+#         html_content='Bitcoin ETL Airflow Load DAG Succeeded',
+#         dag=dag
+#     )
     # verify_blocks_count_task >> send_email_task
     # verify_blocks_have_latest_task >> send_email_task
     # verify_transactions_count_task >> send_email_task
