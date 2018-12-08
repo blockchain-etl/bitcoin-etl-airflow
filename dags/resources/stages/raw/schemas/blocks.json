@@ -38,6 +38,11 @@
         "description": "The root of the receipts trie of the block"
     },
     {
+        "name": "median_time",
+        "type": "INT64",
+        "description": "The root of the receipts trie of the block"
+    },
+    {
         "name": "nonce",
         "type": "INT64",
         "description": "The address of the beneficiary to whom the mining rewards were given"

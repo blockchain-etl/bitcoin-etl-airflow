@@ -1,5 +1,10 @@
 [
     {
+        "name": "txid",
+        "type": "STRING",
+        "description": "Hash of the transaction"
+    },
+    {
         "name": "hash",
         "type": "STRING",
         "mode": "REQUIRED",
@@ -32,6 +37,11 @@
     },
     {
         "name": "block_time",
+        "type": "INT64",
+        "description": "Address of the receiver. null when its a contract creation transaction"
+    },
+    {
+        "name": "block_median_time",
         "type": "INT64",
         "description": "Address of the receiver. null when its a contract creation transaction"
     },
@@ -80,6 +90,10 @@
         "type": "record",
         "mode": "repeated",
         "fields": [
+            {
+                "name": "index",
+                "type": "INT64"
+            },
             {
                 "name": "script_asm",
                 "type": "STRING"

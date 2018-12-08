@@ -65,7 +65,7 @@ export_blocks_and_transactions_command = \
 output_bucket = os.environ.get('OUTPUT_BUCKET')
 if output_bucket is None:
     raise ValueError('You must set OUTPUT_BUCKET environment variable')
-provider_uri = os.environ.get('PROVIDER_URI', 'https://mainnet.infura.io/')
+provider_uri = os.environ.get('PROVIDER_URI', 'http://user:pass@localhost:8332')
 provider_uri_archival = os.environ.get('PROVIDER_URI_ARCHIVAL', provider_uri)
 BITCOINETL_REPO_BRANCH = os.environ.get('BITCOINETL_REPO_BRANCH', 'master')
 dags_folder = os.environ.get('DAGS_FOLDER', '/home/airflow/gcs/dags')
