@@ -32,7 +32,7 @@ if notification_emails and len(notification_emails) > 0:
 dag = models.DAG(
     'bitcoinetl_export_dag',
     # Daily at 1am
-    schedule_interval='0 1 * * *',
+    schedule_interval='0 3 * * *',
     default_args=default_dag_args)
 # miniconda.tar contains Python home directory with bitcoin-etl dependencies install via pip
 # Will get rid of this once Google Cloud Composer supports Python 3
