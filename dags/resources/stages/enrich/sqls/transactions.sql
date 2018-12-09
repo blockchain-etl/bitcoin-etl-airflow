@@ -1,22 +1,19 @@
 with flat_inputs as (
-    select transactions.txid, inputs.*
-    from bitcoin_blockchain_raw.transactions,
+    select transactions.txid, transactions.block_time, inputs.*
+    from bitcoin_blockchain_raw.transactions_raw as transactions,
     unnest(inputs) as inputs
 ),
 flat_outputs as (
-    select transactions.txid, outputs.*
-    from bitcoin_blockchain_raw.transactions,
+    select transactions.txid, transactions.block_time, outputs.*
+    from bitcoin_blockchain_raw.transactions_raw as transactions,
     unnest(outputs) as outputs
 ),
 enriched_flat_inputs as (
     select
         flat_inputs.txid,
-        flat_inputs.spent_txid,
-        flat_inputs.spent_output_index,
-        flat_inputs.script_asm,
-        flat_inputs.script_hex,
-        flat_inputs.coinbase_param,
-        flat_inputs.sequence,
+        flat_inputs.block_time,
+        flat_outputs.required_signatures,
+        flat_outputs.type,
         flat_outputs.addresses,
         flat_outputs.value
     from flat_inputs
@@ -24,9 +21,9 @@ enriched_flat_inputs as (
         and flat_inputs.spent_output_index = flat_outputs.index
 ),
 grouped_enriched_inputs as (
-    select txid, array_agg(struct(spent_txid, spent_output_index, script_asm, script_hex, coinbase_param, sequence, addresses, value)) as inputs
+    select txid, block_time, array_agg(struct(required_signatures, type, addresses, value)) as inputs
     from enriched_flat_inputs
-    group by txid
+    group by txid, block_time
 )
 SELECT
     transactions.txid,
@@ -40,5 +37,6 @@ SELECT
     transactions.block_median_time,
     grouped_enriched_inputs.inputs,
     transactions.outputs
-FROM bitcoin_blockchain_raw.transactions AS transactions
-join grouped_enriched_inputs on grouped_enriched_inputs. txid = transactions.txid
+FROM bitcoin_blockchain_raw.transactions_raw AS transactions
+join grouped_enriched_inputs on grouped_enriched_inputs.txid = transactions.txid
+    and grouped_enriched_inputs.block_time = transactions.block_time

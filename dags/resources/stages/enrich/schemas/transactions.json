@@ -42,28 +42,12 @@
         "mode": "repeated",
         "fields": [
             {
-                "name": "spent_txid",
-                "type": "STRING"
-            },
-            {
-                "name": "spent_output_index",
+                "name": "required_signatures",
                 "type": "INT64"
             },
             {
-                "name": "script_asm",
+                "name": "type",
                 "type": "STRING"
-            },
-            {
-                "name": "script_hex",
-                "type": "STRING"
-            },
-            {
-                "name": "coinbase_param",
-                "type": "STRING"
-            },
-            {
-                "name": "sequence",
-                "type": "INT64"
             },
             {
                 "name": "addresses",
