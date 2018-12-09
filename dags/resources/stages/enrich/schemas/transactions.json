@@ -1,0 +1,119 @@
+[
+    {
+        "name": "txid",
+        "type": "STRING"
+    },
+    {
+        "name": "hash",
+        "type": "STRING",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "size",
+        "type": "INT64"
+    },
+    {
+        "name": "virtual_size",
+        "type": "INT64"
+    },
+    {
+        "name": "version",
+        "type": "INT64"
+    },
+    {
+        "name": "lock_time",
+        "type": "INT64"
+    },
+    {
+        "name": "block_hash",
+        "type": "STRING"
+    },
+    {
+        "name": "block_time",
+        "type": "TIMESTAMP"
+    },
+    {
+        "name": "block_median_time",
+        "type": "INT64"
+    },
+    {
+        "name": "inputs",
+        "type": "record",
+        "mode": "repeated",
+        "fields": [
+            {
+                "name": "spent_txid",
+                "type": "STRING"
+            },
+            {
+                "name": "spent_output_index",
+                "type": "INT64"
+            },
+            {
+                "name": "script_asm",
+                "type": "STRING"
+            },
+            {
+                "name": "script_hex",
+                "type": "STRING"
+            },
+            {
+                "name": "coinbase_param",
+                "type": "STRING"
+            },
+            {
+                "name": "sequence",
+                "type": "INT64"
+            },
+            {
+                "name": "addresses",
+                "type": "STRING",
+                "mode": "repeated"
+            },
+            {
+                "name": "value",
+                "type": "INT64"
+            }
+        ]
+    },
+    {
+        "name": "outputs",
+        "type": "record",
+        "mode": "repeated",
+        "fields": [
+            {
+                "name": "index",
+                "type": "INT64"
+            },
+            {
+                "name": "script_asm",
+                "type": "STRING"
+            },
+            {
+                "name": "script_hex",
+                "type": "STRING"
+            },
+            {
+                "name": "required_signatures",
+                "type": "INT64"
+            },
+            {
+                "name": "sequence",
+                "type": "INT64"
+            },
+            {
+                "name": "type",
+                "type": "STRING"
+            },
+            {
+                "name": "addresses",
+                "type": "STRING",
+                "mode": "repeated"
+            },
+            {
+                "name": "value",
+                "type": "INT64"
+            }
+        ]
+    }
+]

@@ -1,0 +1,51 @@
+[
+    {
+        "name": "hash",
+        "type": "STRING",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "size",
+        "type": "INT64"
+    },
+    {
+        "name": "stripped_size",
+        "type": "INT64"
+    },
+    {
+        "name": "weight",
+        "type": "INT64"
+    },
+    {
+        "name": "height",
+        "type": "INT64"
+    },
+    {
+        "name": "version",
+        "type": "INT64"
+    },
+    {
+        "name": "merkle_root",
+        "type": "STRING"
+    },
+    {
+        "name": "time",
+        "type": "TIMESTAMP"
+    },
+    {
+        "name": "median_time",
+        "type": "INT64"
+    },
+    {
+        "name": "nonce",
+        "type": "INT64"
+    },
+    {
+        "name": "bits",
+        "type": "STRING"
+    },
+    {
+        "name": "transaction_count",
+        "type": "INT64"
+    }
+]
