@@ -34,7 +34,7 @@
     },
     {
         "name": "median_time",
-        "type": "INT64"
+        "type": "TIMESTAMP"
     },
     {
         "name": "nonce",

@@ -34,7 +34,7 @@ SELECT
     transactions.lock_time,
     transactions.block_hash,
     TIMESTAMP_SECONDS(transactions.block_time) as block_time,
-    transactions.block_median_time,
+    TIMESTAMP_SECONDS(transactions.block_median_time) as block_median_time,
     grouped_enriched_inputs.inputs,
     transactions.outputs
 FROM bitcoin_blockchain_raw.transactions_raw AS transactions

@@ -7,7 +7,7 @@ SELECT
     version,
     merkle_root,
     TIMESTAMP_SECONDS(time) as time,
-    median_time,
+    TIMESTAMP_SECONDS(median_time) as median_time,
     nonce,
     bits,
     transaction_count
