@@ -1,5 +1,5 @@
 SELECT
-    hash,
+    `hash`,
     size,
     stripped_size,
     weight,
