@@ -11,7 +11,8 @@ from airflow.contrib.operators.bigquery_operator import BigQueryOperator
 from airflow.contrib.sensors.gcs_sensor import GoogleCloudStorageObjectSensor
 from airflow.operators.email_operator import EmailOperator
 from airflow.operators.python_operator import PythonOperator
-from google.cloud.bigquery import TimePartitioning, SchemaField, Client, LoadJobConfig
+from google.cloud.bigquery import TimePartitioning, SchemaField, Client, LoadJobConfig, Table, QueryJobConfig, \
+    QueryPriority, CopyJobConfig
 from google.cloud.bigquery.job import SourceFormat
 
 logging.basicConfig()
@@ -26,10 +27,12 @@ logging.getLogger().setLevel(logging.DEBUG)
 
 dataset_name = os.environ.get('DATASET_NAME', 'bitcoin_blockchain')
 dataset_name_raw = os.environ.get('DATASET_NAME_RAW', 'bitcoin_blockchain_raw')
-# dataset_name_temp = os.environ.get('DATASET_NAME_TEMP', 'bitcoin_blockchain_temp')
-# destination_dataset_project_id = os.environ.get('DESTINATION_DATASET_PROJECT_ID', None)
-# if destination_dataset_project_id is None:
-#     raise ValueError('DESTINATION_DATASET_PROJECT_ID is required')
+
+dataset_name_temp = os.environ.get('DATASET_NAME_TEMP', 'bitcoin_blockchain_temp')
+destination_dataset_project_id = os.environ.get('DESTINATION_DATASET_PROJECT_ID', None)
+if destination_dataset_project_id is None:
+    raise ValueError('DESTINATION_DATASET_PROJECT_ID is required')
+
 
 # environment = {
 #     'DATASET_NAME': dataset_name,
@@ -59,14 +62,14 @@ def read_bigquery_schema_from_json(json_schema):
                 mode=field.get('mode', 'NULLABLE'),
                 description=field.get('description'),
                 fields=read_bigquery_schema_from_json(field.get('fields'))
-                )
+            )
         else:
             schema = SchemaField(
                 name=field.get('name'),
                 field_type=field.get('type', 'STRING'),
                 mode=field.get('mode', 'NULLABLE'),
                 description=field.get('description')
-                )
+            )
         result.append(schema)
     return result
 
@@ -157,15 +160,77 @@ def add_load_tasks(task, file_format, allow_quoted_newlines=False):
         dag=dag
     )
 
-    # wait_sensor >> load_operator
+    wait_sensor >> load_operator
     return load_operator
 
 
+def add_enrich_tasks(task, time_partitioning_field='block_timestamp', dependencies=None):
+    def enrich_task():
+        client = Client()
+
+        # Need to use a temporary table because bq query sets field modes to NULLABLE and descriptions to null
+        # when writeDisposition is WRITE_TRUNCATE
+
+        # Create a temporary table
+        temp_table_name = '{task}_{milliseconds}'.format(task=task, milliseconds=int(round(time.time() * 1000)))
+        temp_table_ref = client.dataset(dataset_name_temp).table(temp_table_name)
+
+        schema_path = os.path.join(dags_folder, 'resources/stages/enrich/schemas/{task}.json'.format(task=task))
+        schema = read_bigquery_schema_from_file(schema_path)
+        table = Table(temp_table_ref, schema=schema)
+
+        description_path = os.path.join(
+            dags_folder, 'resources/stages/enrich/descriptions/{task}.txt'.format(task=task))
+        table.description = read_file(description_path)
+        if time_partitioning_field is not None:
+            table.time_partitioning = TimePartitioning(field=time_partitioning_field)
+        logging.info('Creating table: ' + json.dumps(table.to_api_repr()))
+        table = client.create_table(table)
+        assert table.table_id == temp_table_name
+
+        # Query from raw to temporary table
+        query_job_config = QueryJobConfig()
+        # Finishes faster, query limit for concurrent interactive queries is 50
+        query_job_config.priority = QueryPriority.INTERACTIVE
+        query_job_config.destination = temp_table_ref
+        sql_path = os.path.join(dags_folder, 'resources/stages/enrich/sqls/{task}.sql'.format(task=task))
+        sql = read_file(sql_path)
+        query_job = client.query(sql, location='US', job_config=query_job_config)
+        submit_bigquery_job(query_job, query_job_config)
+        assert query_job.state == 'DONE'
+
+        # Copy temporary table to destination
+        copy_job_config = CopyJobConfig()
+        copy_job_config.write_disposition = 'WRITE_TRUNCATE'
+
+        dest_table_name = '{task}'.format(task=task)
+        project = os.environ.get('DESTINATION_DATASET_PROJECT_ID', None)
+        dest_table_ref = client.dataset(dataset_name, project=project).table(dest_table_name)
+        copy_job = client.copy_table(temp_table_ref, dest_table_ref, location='US', job_config=copy_job_config)
+        submit_bigquery_job(copy_job, copy_job_config)
+        assert copy_job.state == 'DONE'
+
+        # Delete temp table
+        client.delete_table(temp_table_ref)
+
+    enrich_operator = PythonOperator(
+        task_id='enrich_{task}'.format(task=task),
+        python_callable=enrich_task,
+        execution_timeout=timedelta(minutes=60),
+        dag=dag
+    )
+
+    if dependencies is not None and len(dependencies) > 0:
+        for dependency in dependencies:
+            dependency >> enrich_operator
+    return enrich_operator
+
+
 load_blocks_task = add_load_tasks('blocks', 'json')
-load_transactions_task = add_load_tasks('transactions_raw', 'json')
+load_transactions_task = add_load_tasks('transactions', 'json')
 
 # enrich_blocks_task = add_enrich_tasks(
-#     'blocks', time_partitioning_field='timestamp', dependencies=[load_blocks_task])
+#     'blocks', time_partitioning_field='time', dependencies=[load_blocks_task])
 # enrich_transactions_task = add_enrich_tasks(
 #     'transactions', dependencies=[load_blocks_task, load_transactions_task, load_receipts_task])
 
@@ -183,7 +248,7 @@ load_transactions_task = add_load_tasks('transactions_raw', 'json')
 #         html_content='Bitcoin ETL Airflow Load DAG Succeeded',
 #         dag=dag
 #     )
-    # verify_blocks_count_task >> send_email_task
-    # verify_blocks_have_latest_task >> send_email_task
-    # verify_transactions_count_task >> send_email_task
-    # verify_transactions_have_latest_task >> send_email_task
+# verify_blocks_count_task >> send_email_task
+# verify_blocks_have_latest_task >> send_email_task
+# verify_transactions_count_task >> send_email_task
+# verify_transactions_have_latest_task >> send_email_task
