@@ -119,7 +119,7 @@ dags_folder = os.environ.get('DAGS_FOLDER', '/home/airflow/gcs/dags')
 
 
 def add_load_tasks(task, file_format, allow_quoted_newlines=False):
-    output_bucket = os.environ.get('OUTPUT_BUCKET')
+    output_bucket = 'bitcoin-etl-dev-1'
     if output_bucket is None:
         raise ValueError('You must set OUTPUT_BUCKET environment variable')
 
@@ -136,7 +136,7 @@ def add_load_tasks(task, file_format, allow_quoted_newlines=False):
     def load_task():
         client = Client()
         job_config = LoadJobConfig()
-        schema_path = os.path.join(dags_folder, 'resources/stages/raw/schemas/{task}.json'.format(task=task))
+        schema_path = os.path.join(dags_folder, 'bitcoin/resources/stages/raw/schemas/{task}.json'.format(task=task))
         job_config.schema = read_bigquery_schema_from_file(schema_path)
         job_config.source_format = SourceFormat.CSV if file_format == 'csv' else SourceFormat.NEWLINE_DELIMITED_JSON
         if file_format == 'csv':
@@ -175,12 +175,12 @@ def add_enrich_tasks(task, time_partitioning_field='block_timestamp', dependenci
         temp_table_name = '{task}_{milliseconds}'.format(task=task, milliseconds=int(round(time.time() * 1000)))
         temp_table_ref = client.dataset(dataset_name_temp).table(temp_table_name)
 
-        schema_path = os.path.join(dags_folder, 'resources/stages/enrich/schemas/{task}.json'.format(task=task))
+        schema_path = os.path.join(dags_folder, 'bitcoin/resources/stages/enrich/schemas/{task}.json'.format(task=task))
         schema = read_bigquery_schema_from_file(schema_path)
         table = Table(temp_table_ref, schema=schema)
 
         description_path = os.path.join(
-            dags_folder, 'resources/stages/enrich/descriptions/{task}.txt'.format(task=task))
+            dags_folder, 'bitcoin/resources/stages/enrich/descriptions/{task}.txt'.format(task=task))
         table.description = read_file(description_path)
         if time_partitioning_field is not None:
             table.time_partitioning = TimePartitioning(field=time_partitioning_field)
@@ -193,7 +193,7 @@ def add_enrich_tasks(task, time_partitioning_field='block_timestamp', dependenci
         # Finishes faster, query limit for concurrent interactive queries is 50
         query_job_config.priority = QueryPriority.INTERACTIVE
         query_job_config.destination = temp_table_ref
-        sql_path = os.path.join(dags_folder, 'resources/stages/enrich/sqls/{task}.sql'.format(task=task))
+        sql_path = os.path.join(dags_folder, 'bitcoin/resources/stages/enrich/sqls/{task}.sql'.format(task=task))
         sql = read_file(sql_path)
         query_job = client.query(sql, location='US', job_config=query_job_config)
         submit_bigquery_job(query_job, query_job_config)
@@ -227,12 +227,12 @@ def add_enrich_tasks(task, time_partitioning_field='block_timestamp', dependenci
 
 
 load_blocks_task = add_load_tasks('blocks', 'json')
-load_transactions_task = add_load_tasks('transactions', 'json')
+load_transactions_task = add_load_tasks('transactions_raw', 'json')
 
-# enrich_blocks_task = add_enrich_tasks(
-#     'blocks', time_partitioning_field='time', dependencies=[load_blocks_task])
-# enrich_transactions_task = add_enrich_tasks(
-#     'transactions', dependencies=[load_blocks_task, load_transactions_task, load_receipts_task])
+enrich_blocks_task = add_enrich_tasks(
+    'blocks', time_partitioning_field='time', dependencies=[load_blocks_task])
+enrich_transactions_task = add_enrich_tasks(
+    'transactions', time_partitioning_field='block_time', dependencies=[load_blocks_task, load_transactions_task])
 
 # verify_blocks_count_task = add_verify_tasks('blocks_count', [enrich_blocks_task])
 # verify_blocks_have_latest_task = add_verify_tasks('blocks_have_latest', [enrich_blocks_task])
