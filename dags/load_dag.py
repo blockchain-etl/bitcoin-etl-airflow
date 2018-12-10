@@ -243,7 +243,7 @@ def add_verify_tasks(task, dependencies=None):
 
 
 load_blocks_task = add_load_tasks('blocks', 'json')
-load_transactions_task = add_load_tasks('transactions_raw', 'json')
+load_transactions_task = add_load_tasks('transactions', 'json')
 
 enrich_blocks_task = add_enrich_tasks(
     'blocks', time_partitioning_field=None, dependencies=[load_blocks_task])

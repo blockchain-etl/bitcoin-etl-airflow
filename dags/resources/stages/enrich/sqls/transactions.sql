@@ -1,11 +1,11 @@
 with flat_inputs as (
     select transactions.txid, transactions.block_time, inputs.*
-    from bitcoin_blockchain_raw.transactions_raw as transactions,
+    from bitcoin_blockchain_raw.transactions as transactions,
     unnest(inputs) as inputs
 ),
 flat_outputs as (
     select transactions.txid, transactions.block_time, outputs.*
-    from bitcoin_blockchain_raw.transactions_raw as transactions,
+    from bitcoin_blockchain_raw.transactions as transactions,
     unnest(outputs) as outputs
 ),
 enriched_flat_inputs as (
@@ -37,6 +37,6 @@ SELECT
     TIMESTAMP_SECONDS(transactions.block_median_time) as block_median_time,
     grouped_enriched_inputs.inputs,
     transactions.outputs
-FROM bitcoin_blockchain_raw.transactions_raw AS transactions
+FROM bitcoin_blockchain_raw.transactions AS transactions
 join grouped_enriched_inputs on grouped_enriched_inputs.txid = transactions.txid
     and grouped_enriched_inputs.block_time = transactions.block_time

@@ -56,9 +56,9 @@ export_blocks_and_transactions_command = \
     setup_command + ' && ' + \
     'echo $BLOCK_RANGE > blocks_meta.txt && ' \
     '$PYTHON3 bitcoinetl.py export_blocks_and_transactions -b $EXPORT_BATCH_SIZE -w $EXPORT_MAX_WORKERS -s $START_BLOCK -e $END_BLOCK ' \
-    '-p $PROVIDER_URI --blocks-output blocks.json --transactions-output transactions_raw.json && ' \
+    '-p $PROVIDER_URI --blocks-output blocks.json --transactions-output transactions.json && ' \
     'gsutil cp blocks.json $EXPORT_LOCATION_URI/blocks/block_date=$EXECUTION_DATE/blocks.json && ' \
-    'gsutil cp transactions_raw.json $EXPORT_LOCATION_URI/transactions_raw/block_date=$EXECUTION_DATE/transactions_raw.json && ' \
+    'gsutil cp transactions.json $EXPORT_LOCATION_URI/transactions/block_date=$EXECUTION_DATE/transactions.json && ' \
     'gsutil cp blocks_meta.txt $EXPORT_LOCATION_URI/blocks_meta/block_date=$EXECUTION_DATE/blocks_meta.txt '
 
 
