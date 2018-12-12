@@ -42,6 +42,18 @@
         "mode": "repeated",
         "fields": [
             {
+                "name": "index",
+                "type": "INT64"
+            },
+            {
+                "name": "script_asm",
+                "type": "STRING"
+            },
+            {
+                "name": "coinbase_param",
+                "type": "STRING"
+            },
+            {
                 "name": "required_signatures",
                 "type": "INT64"
             },

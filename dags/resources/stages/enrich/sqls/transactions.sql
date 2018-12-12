@@ -10,6 +10,7 @@ flat_outputs as (
 ),
 enriched_flat_inputs as (
     select
+        flat_inputs.index,
         flat_inputs.txid,
         flat_inputs.block_time,
         flat_outputs.required_signatures,
@@ -21,7 +22,7 @@ enriched_flat_inputs as (
         and flat_inputs.spent_output_index = flat_outputs.index
 ),
 grouped_enriched_inputs as (
-    select txid, block_time, array_agg(struct(required_signatures, type, addresses, value)) as inputs
+    select txid, block_time, array_agg(struct(index, required_signatures, type, addresses, value)) as inputs
     from enriched_flat_inputs
     group by txid, block_time
 )
@@ -35,7 +36,13 @@ SELECT
     transactions.block_hash,
     TIMESTAMP_SECONDS(transactions.block_time) as block_time,
     TIMESTAMP_SECONDS(transactions.block_median_time) as block_median_time,
-    grouped_enriched_inputs.inputs,
+    array(
+      select as struct inputs.index, inputs.script_asm, inputs.coinbase_param,
+          enriched_inputs.required_signatures, enriched_inputs.type, enriched_inputs.addresses, enriched_inputs.value
+      from unnest(grouped_enriched_inputs.inputs) as enriched_inputs
+      join unnest(transactions.inputs) as inputs on inputs.index = enriched_inputs.index
+      order by inputs.index
+    ) as inputs,
     transactions.outputs
 FROM bitcoin_blockchain_raw.transactions AS transactions
 join grouped_enriched_inputs on grouped_enriched_inputs.txid = transactions.txid
