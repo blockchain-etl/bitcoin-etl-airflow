@@ -45,11 +45,6 @@
         "description": "Address of the receiver. null when its a contract creation transaction"
     },
     {
-        "name": "block_median_time",
-        "type": "INT64",
-        "description": "Address of the receiver. null when its a contract creation transaction"
-    },
-    {
         "name": "inputs",
         "type": "record",
         "mode": "repeated",

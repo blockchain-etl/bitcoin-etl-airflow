@@ -33,10 +33,6 @@
         "type": "TIMESTAMP"
     },
     {
-        "name": "block_median_time",
-        "type": "TIMESTAMP"
-    },
-    {
         "name": "inputs",
         "type": "record",
         "mode": "repeated",
