@@ -37,10 +37,10 @@ def build_load_dag(
     dataset_name_temp = '{}_blockchain_temp'.format(chain)
 
     environment = {
-        'DATASET_NAME': dataset_name,
-        'DATASET_NAME_RAW': dataset_name_raw,
-        'DATASET_NAME_TEMP': dataset_name_temp,
-        'DESTINATION_DATASET_PROJECT_ID': destination_dataset_project_id
+        'dataset_name': dataset_name,
+        'dataset_name_raw': dataset_name_raw,
+        'dataset_name_temp': dataset_name_temp,
+        'destination_dataset_project_id': destination_dataset_project_id
     }
 
     default_dag_args = {

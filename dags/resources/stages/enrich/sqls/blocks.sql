@@ -11,4 +11,4 @@ SELECT
     nonce,
     bits,
     transaction_count
-FROM bitcoin_blockchain_raw.blocks AS blocks
+FROM {{dataset_name_raw}}.blocks AS blocks

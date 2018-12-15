@@ -1,11 +1,11 @@
 with flat_inputs as (
     select transactions.txid, transactions.block_time, inputs.*
-    from bitcoin_blockchain_raw.transactions as transactions,
+    from {{dataset_name_raw}}.transactions as transactions,
     unnest(inputs) as inputs
 ),
 flat_outputs as (
     select transactions.txid, transactions.block_time, outputs.*
-    from bitcoin_blockchain_raw.transactions as transactions,
+    from {{dataset_name_raw}}.transactions as transactions,
     unnest(outputs) as outputs
 ),
 enriched_flat_inputs as (
@@ -43,6 +43,6 @@ SELECT
       order by inputs.index
     ) as inputs,
     transactions.outputs
-FROM bitcoin_blockchain_raw.transactions AS transactions
+FROM {{dataset_name_raw}}.transactions AS transactions
 join grouped_enriched_inputs on grouped_enriched_inputs.txid = transactions.txid
     and grouped_enriched_inputs.block_time = transactions.block_time
