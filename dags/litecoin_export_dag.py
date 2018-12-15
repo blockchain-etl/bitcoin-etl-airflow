@@ -7,13 +7,12 @@ from airflow.models import Variable
 from build_export_dag import build_export_dag
 
 dag = build_export_dag(
-    provider_uri=Variable.get('dogecoin_provider_uri'),
-    output_bucket=Variable.get('dogecoin_output_bucket'),
-    start_date=datetime(2013, 12, 6),
+    provider_uri=Variable.get('litecoin_provider_uri'),
+    output_bucket=Variable.get('litecoin_output_bucket'),
+    start_date=datetime(2011, 10, 7),
     chain='dogecoin',
     notification_emails=Variable.get('notification_emails', ''),
-    schedule_interval='0 4 * * *',
-    export_max_workers=1,
-    export_batch_size=5,
-    max_active_runs=3
+    schedule_interval='0 5 * * *',
+    export_max_workers=4,
+    export_batch_size=1
 )
