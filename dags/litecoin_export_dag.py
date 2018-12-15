@@ -2,13 +2,13 @@ from __future__ import print_function
 
 from datetime import datetime
 
-from airflow.models import Variable, DAG
+from airflow.models import Variable
 
 from bitcoinetl.build_export_dag import build_export_dag
 
-dag = DAG('litecoin_export_dag')
-
-dag = build_export_dag(
+# When searching for DAGs, Airflow will only consider files where the string “airflow” and “DAG” both appear in the
+# contents of the .py file.
+DAG = build_export_dag(
     dag_id='litecoin_export_dag',
     provider_uri=Variable.get('litecoin_provider_uri'),
     output_bucket=Variable.get('litecoin_output_bucket'),
