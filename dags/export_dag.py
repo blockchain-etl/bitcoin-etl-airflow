@@ -50,15 +50,19 @@ setup_command = \
     'BLOCK_RANGE=$($PYTHON3 bitcoinetl.py get_block_range_for_date -d $EXECUTION_DATE -p $PROVIDER_URI) && ' \
     'BLOCK_RANGE_ARRAY=(${BLOCK_RANGE//,/ }) && START_BLOCK=${BLOCK_RANGE_ARRAY[0]} && END_BLOCK=${BLOCK_RANGE_ARRAY[1]} && ' \
     'EXPORT_LOCATION_URI=gs://$OUTPUT_BUCKET/export && ' \
-    'export CLOUDSDK_PYTHON=/usr/local/bin/python'
+    'export CLOUDSDK_PYTHON=/usr/local/bin/python2'
 
 export_blocks_and_transactions_command = \
     setup_command + ' && ' + \
     'echo $BLOCK_RANGE > blocks_meta.txt && ' \
     '$PYTHON3 bitcoinetl.py export_blocks_and_transactions -b $EXPORT_BATCH_SIZE -w $EXPORT_MAX_WORKERS -s $START_BLOCK -e $END_BLOCK ' \
     '-p $PROVIDER_URI --blocks-output blocks.json --transactions-output transactions.json && ' \
-    'gsutil cp blocks.json $EXPORT_LOCATION_URI/blocks/block_date=$EXECUTION_DATE/blocks.json && ' \
-    'gsutil cp transactions.json $EXPORT_LOCATION_URI/transactions/block_date=$EXECUTION_DATE/transactions.json && ' \
+    '$PYTHON3 bitcoinetl.py filter_items -i blocks.json -o blocks_filtered.json ' \
+    '-p "datetime.datetime.fromtimestamp(item[\'time\']).astimezone(datetime.timezone.utc).strftime(\'%Y-%m-%d\') == \'$EXECUTION_DATE\'" && ' \
+    '$PYTHON3 bitcoinetl.py filter_items -i transactions.json -o transactions_filtered.json ' \
+    '-p "datetime.datetime.fromtimestamp(item[\'block_time\']).astimezone(datetime.timezone.utc).strftime(\'%Y-%m-%d\') == \'$EXECUTION_DATE\'" && ' \
+    'gsutil cp blocks_filtered.json $EXPORT_LOCATION_URI/blocks/block_date=$EXECUTION_DATE/blocks.json && ' \
+    'gsutil cp transactions_filtered.json $EXPORT_LOCATION_URI/transactions/block_date=$EXECUTION_DATE/transactions.json && ' \
     'gsutil cp blocks_meta.txt $EXPORT_LOCATION_URI/blocks_meta/block_date=$EXECUTION_DATE/blocks_meta.txt '
 
 
