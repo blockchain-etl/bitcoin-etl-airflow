@@ -25,6 +25,7 @@ logging.getLogger().setLevel(logging.DEBUG)
 # - {chain}_blockchain
 
 def build_load_dag(
+        dag_id,
         output_bucket,
         destination_dataset_project_id,
         chain='bitcoin',
@@ -57,7 +58,7 @@ def build_load_dag(
 
     # Define a DAG (directed acyclic graph) of tasks.
     dag = DAG(
-        '{}_load_dag'.format(chain),
+        dag_id,
         catchup=False,
         schedule_interval=schedule_interval,
         default_args=default_dag_args)

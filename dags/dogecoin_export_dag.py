@@ -4,9 +4,10 @@ from datetime import datetime
 
 from airflow.models import Variable
 
-from build_export_dag import build_export_dag
+from bitcoinetl.build_export_dag import build_export_dag
 
 dag = build_export_dag(
+    dag_id='dogecoin_export_dag',
     provider_uri=Variable.get('dogecoin_provider_uri'),
     output_bucket=Variable.get('dogecoin_output_bucket'),
     start_date=datetime(2013, 12, 6),

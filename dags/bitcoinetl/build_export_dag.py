@@ -8,6 +8,7 @@ from airflow.operators import bash_operator
 
 
 def build_export_dag(
+        dag_id,
         provider_uri,
         output_bucket,
         start_date,
@@ -34,7 +35,7 @@ def build_export_dag(
         default_dag_args['email'] = [email.strip() for email in notification_emails.split(',')]
 
     dag = DAG(
-        '{}_export_dag'.format(chain),
+        dag_id,
         schedule_interval=schedule_interval,
         max_active_runs=max_active_runs,
         default_args=default_dag_args)
