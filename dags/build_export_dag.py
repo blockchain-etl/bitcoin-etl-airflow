@@ -15,8 +15,9 @@ def build_export_dag(
         notification_emails=None,
         schedule_interval='0 0 * * *',
         bitcoinetl_repo_branch='master',
-        export_max_workers='5',
-        export_batch_size='10'
+        export_max_workers=5,
+        export_batch_size=10,
+        max_active_runs=15
 ):
     export_max_workers = str(export_max_workers)
     export_batch_size = str(export_batch_size)
@@ -35,6 +36,7 @@ def build_export_dag(
     dag = DAG(
         '{}_export_dag'.format(chain),
         schedule_interval=schedule_interval,
+        max_active_runs=max_active_runs,
         default_args=default_dag_args)
     # miniconda.tar contains Python home directory with bitcoin-etl dependencies install via pip
     # Will get rid of this once Google Cloud Composer supports Python 3
@@ -57,7 +59,7 @@ def build_export_dag(
     export_blocks_and_transactions_command = \
         setup_command + ' && ' + \
         'echo $BLOCK_RANGE > blocks_meta.txt && ' \
-        '$PYTHON3 bitcoinetl.py export_blocks_and_transactions -b $EXPORT_BATCH_SIZE -w $EXPORT_MAX_WORKERS -s $START_BLOCK -e $END_BLOCK ' \
+        '$PYTHON3 bitcoinetl.py export_blocks_and_transactions -c $CHAIN -b $EXPORT_BATCH_SIZE -w $EXPORT_MAX_WORKERS -s $START_BLOCK -e $END_BLOCK ' \
         '-p $PROVIDER_URI --blocks-output blocks.json --transactions-output transactions.json && ' \
         '$PYTHON3 bitcoinetl.py filter_items -i blocks.json -o blocks_filtered.json ' \
         '-p "datetime.datetime.fromtimestamp(item[\'time\']).astimezone(datetime.timezone.utc).strftime(\'%Y-%m-%d\') == \'$EXECUTION_DATE\'" && ' \
@@ -72,6 +74,7 @@ def build_export_dag(
     # ds is 1 day behind the date on which the run is scheduled, e.g. if the dag is scheduled to run at
     # 1am on January 2, ds will be January 1.
     environment = {
+        'CHAIN': chain,
         'EXECUTION_DATE': '{{ ds }}',
         'BITCOINETL_REPO_BRANCH': bitcoinetl_repo_branch,
         'PROVIDER_URI': provider_uri,
