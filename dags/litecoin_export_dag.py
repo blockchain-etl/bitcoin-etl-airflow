@@ -2,9 +2,11 @@ from __future__ import print_function
 
 from datetime import datetime
 
-from airflow.models import Variable
+from airflow.models import Variable, DAG
 
 from bitcoinetl.build_export_dag import build_export_dag
+
+dag = DAG('litecoin_export_dag')
 
 dag = build_export_dag(
     dag_id='litecoin_export_dag',

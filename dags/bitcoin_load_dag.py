@@ -2,12 +2,14 @@ from __future__ import print_function
 
 import logging
 
-from airflow.models import Variable
+from airflow.models import Variable, DAG
 
 from bitcoinetl.build_load_dag import build_load_dag
 
 logging.basicConfig()
 logging.getLogger().setLevel(logging.DEBUG)
+
+dag = DAG('bitcoin_load_dag')
 
 dag = build_load_dag(
     dag_id='bitcoin_load_dag',
