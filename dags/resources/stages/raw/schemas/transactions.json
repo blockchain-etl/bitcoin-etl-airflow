@@ -2,12 +2,12 @@
     {
         "name": "txid",
         "type": "STRING",
+        "mode": "REQUIRED",
         "description": "Hash of the transaction"
     },
     {
         "name": "hash",
         "type": "STRING",
-        "mode": "REQUIRED",
         "description": "Hash of the transaction"
     },
     {
