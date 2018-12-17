@@ -34,6 +34,7 @@ SELECT
     transactions.version,
     transactions.lock_time,
     transactions.block_hash,
+    transactions.block_height,
     TIMESTAMP_SECONDS(transactions.block_time) as block_time,
     array(
       select as struct inputs.index, inputs.script_asm, inputs.coinbase_param,

@@ -1,12 +1,12 @@
 [
     {
         "name": "txid",
-        "type": "STRING"
+        "type": "STRING",
+        "mode": "REQUIRED"
     },
     {
         "name": "hash",
-        "type": "STRING",
-        "mode": "REQUIRED"
+        "type": "STRING"
     },
     {
         "name": "size",
@@ -27,6 +27,10 @@
     {
         "name": "block_hash",
         "type": "STRING"
+    },
+    {
+        "name": "block_height",
+        "type": "INT64"
     },
     {
         "name": "block_time",
