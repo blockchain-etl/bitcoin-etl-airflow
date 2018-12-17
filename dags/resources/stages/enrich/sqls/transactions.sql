@@ -45,5 +45,5 @@ SELECT
     ) as inputs,
     transactions.outputs
 FROM {{dataset_name_raw}}.transactions AS transactions
-join grouped_enriched_inputs on grouped_enriched_inputs.txid = transactions.txid
+left join grouped_enriched_inputs on grouped_enriched_inputs.txid = transactions.txid
     and grouped_enriched_inputs.block_time = transactions.block_time
