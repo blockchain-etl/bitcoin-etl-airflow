@@ -68,7 +68,7 @@
             },
             {
                 "name": "value",
-                "type": "INT64"
+                "type": "NUMERIC"
             }
         ]
     },
@@ -108,7 +108,7 @@
             },
             {
                 "name": "value",
-                "type": "INT64"
+                "type": "NUMERIC"
             }
         ]
     }
