@@ -2,50 +2,62 @@
     {
         "name": "hash",
         "type": "STRING",
-        "mode": "REQUIRED"
+        "mode": "REQUIRED",
+        "description": "Hash of this block"
     },
     {
         "name": "size",
-        "type": "INT64"
+        "type": "INT64",
+        "description": "The size all block data in bytes"
     },
     {
         "name": "stripped_size",
-        "type": "INT64"
+        "type": "INT64",
+        "description": "The size all block data in bytes excluding witness data"
     },
     {
         "name": "weight",
-        "type": "INT64"
+        "type": "INT64",
+        "description": "Three times the base size plus the total size. https://github.com/bitcoin/bips/blob/master/bip-0141.mediawiki"
     },
     {
         "name": "height",
-        "type": "INT64"
+        "type": "INT64",
+        "description": "The number of blocks in the chain between this block and the genesis block."
     },
     {
         "name": "version",
-        "type": "INT64"
+        "type": "INT64",
+        "description": "Protocol version specified in block header"
     },
     {
         "name": "merkle_root",
-        "type": "STRING"
+        "type": "STRING",
+        "description": "Hash of all the hashes of all the transactions in the block"
     },
     {
         "name": "time",
-        "type": "TIMESTAMP"
+        "type": "TIMESTAMP",
+        "description": "Block Creation timestamp specified in block header"
     },
     {
         "name": "median_time",
-        "type": "TIMESTAMP"
+        "type": "TIMESTAMP",
+        "description": "Median time of the past 11 block timestamps. A block must have a timestamp greater than its median time."
     },
     {
         "name": "nonce",
-        "type": "INT64"
+        "type": "INT64",
+        "description": "Difficulty solution specified in block header (Integer)"
     },
     {
         "name": "bits",
-        "type": "STRING"
+        "type": "STRING",
+        "description": "Difficulty threshold specified in block header (Hexadecimal)"
     },
     {
         "name": "transaction_count",
-        "type": "INT64"
+        "type": "INT64",
+        "description": "Number of Transactions included in this block"
     }
 ]
