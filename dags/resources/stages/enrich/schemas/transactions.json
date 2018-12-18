@@ -117,7 +117,7 @@
             {
                 "name": "sequence",
                 "type": "INT64",
-                "description": "Same as index"
+                "description": "A number intended to allow unconfirmed time-locked transactions to be updated before being finalized; not currently used except to disable locktime in a transaction"
             },
             {
                 "name": "type",
