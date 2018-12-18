@@ -2,39 +2,48 @@
     {
         "name": "txid",
         "type": "STRING",
-        "mode": "REQUIRED"
+        "mode": "REQUIRED",
+        "description": "The 256-bit hash of this transaction"
     },
     {
         "name": "hash",
-        "type": "STRING"
+        "type": "STRING",
+        "description": "The 256-bit hash of this transaction"
     },
     {
         "name": "size",
-        "type": "INT64"
+        "type": "INT64",
+        "description": "The size of this transaction in bytes"
     },
     {
         "name": "virtual_size",
-        "type": "INT64"
+        "type": "INT64",
+        "description": "The weight of the transaction divided by 4"
     },
     {
         "name": "version",
-        "type": "INT64"
+        "type": "INT64",
+        "description": "Protocol version specified in block which contained this transaction"
     },
     {
         "name": "lock_time",
-        "type": "INT64"
+        "type": "INT64",
+        "description": "Earliest time that miners can include the transaction in their hashing of the Merkle root to attach it in the latest block of the blockchain"        
     },
     {
         "name": "block_hash",
-        "type": "STRING"
+        "type": "STRING",
+        "description": "Hash of the block which contained this transaction"
     },
     {
         "name": "block_height",
-        "type": "INT64"
+        "type": "INT64",
+        "description": "The number of blocks in the chain between this block and the genesis block."
     },
     {
         "name": "block_time",
-        "type": "TIMESTAMP"
+        "type": "TIMESTAMP",
+        "description": "Block Creation timestamp specified in block header"
     },
     {
         "name": "inputs",
@@ -43,32 +52,40 @@
         "fields": [
             {
                 "name": "index",
-                "type": "INT64"
+                "type": "INT64",
+                "description": "0-indexed number of an input within a transaction used by a later transaction to refer to that specific input"
             },
             {
                 "name": "script_asm",
-                "type": "STRING"
+                "type": "STRING",
+                "description": "Symbolic representation of the bitcoin's script language op-codes"
             },
             {
                 "name": "coinbase_param",
-                "type": "STRING"
+                "type": "STRING",
+                "description": "Data contained within the coinbase transaction of this block"
             },
             {
                 "name": "required_signatures",
-                "type": "INT64"
+                "type": "INT64",
+                "description": "The number of signatures required to authorize spending of this input"
             },
             {
                 "name": "type",
-                "type": "STRING"
+                "type": "STRING",
+                "description": "The address type of the input"
+
             },
             {
                 "name": "addresses",
                 "type": "STRING",
-                "mode": "repeated"
+                "mode": "repeated",
+                "description": "Addresses which own this input"
             },
             {
                 "name": "value",
-                "type": "NUMERIC"
+                "type": "NUMERIC",
+                "description": "The value in base currency attached to this input"
             }
         ]
     },
@@ -79,36 +96,44 @@
         "fields": [
             {
                 "name": "index",
-                "type": "INT64"
+                "type": "INT64",
+                "description": "0-indexed number of an output within a transaction used by a later transaction to refer to that specific output"
             },
             {
                 "name": "script_asm",
-                "type": "STRING"
+                "type": "STRING",
+                "description": "Symbolic representation of the bitcoin's script language op-codes"
             },
             {
                 "name": "script_hex",
-                "type": "STRING"
+                "type": "STRING",
+                "description": "Hexadecimal representation of the bitcoin's script language op-codes"
             },
             {
                 "name": "required_signatures",
-                "type": "INT64"
+                "type": "INT64",
+                "description": "The number of signatures required to authorize spending of this output"
             },
             {
                 "name": "sequence",
-                "type": "INT64"
+                "type": "INT64",
+                "description": "A number intended to allow unconfirmed time-locked transactions to be updated before being finalized; not currently used except to disable locktime in a transaction"
             },
             {
                 "name": "type",
-                "type": "STRING"
+                "type": "STRING",
+                "description": "The address type of the output"
             },
             {
                 "name": "addresses",
                 "type": "STRING",
-                "mode": "repeated"
+                "mode": "repeated",
+                "description": "Addresses which own this output"
             },
             {
                 "name": "value",
-                "type": "NUMERIC"
+                "type": "NUMERIC",
+                "description": "The value in base currency attached to this output"
             }
         ]
     }
