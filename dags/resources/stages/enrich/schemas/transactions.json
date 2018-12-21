@@ -22,7 +22,7 @@
     {
         "name": "lock_time",
         "type": "INT64",
-        "description": "Earliest time that miners can include the transaction in their hashing of the Merkle root to attach it in the latest block of the blockchain"        
+        "description": "Earliest time that miners can include the transaction in their hashing of the Merkle root to attach it in the latest block of the blockchain"
     },
     {
         "name": "block_hash",
@@ -46,6 +46,11 @@
     {
         "name": "output_count",
         "type": "INT64"
+    },
+    {
+        "name": "fee",
+        "type": "NUMERIC",
+        "description": "The fee paid by this transaction"
     },
     {
         "name": "inputs",
@@ -89,7 +94,6 @@
                 "name": "type",
                 "type": "STRING",
                 "description": "The address type of the input"
-
             },
             {
                 "name": "addresses",
