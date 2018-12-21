@@ -37,6 +37,7 @@ select
     timestamp_seconds(transactions.block_timestamp) as block_timestamp,
     transactions.input_count,
     transactions.output_count,
+    if(transactions.input_count = 0, true, false) as is_coinbase,
     array(
       select as struct inputs.index, inputs.spent_transaction_hash, inputs.spent_output_index,
           inputs.script_asm, inputs.script_hex,

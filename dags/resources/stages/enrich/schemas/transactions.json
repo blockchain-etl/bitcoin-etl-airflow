@@ -48,6 +48,11 @@
         "type": "INT64"
     },
     {
+        "name": "is_coinbase",
+        "type": "BOOLEAN",
+        "description": "true if this transaction is a coinbase transaction"
+    },
+    {
         "name": "fee",
         "type": "NUMERIC",
         "description": "The fee paid by this transaction"
