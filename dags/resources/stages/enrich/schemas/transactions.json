@@ -48,6 +48,14 @@
         "type": "INT64"
     },
     {
+        "name": "input_value",
+        "type": "NUMERIC"
+    },
+    {
+        "name": "output_value",
+        "type": "NUMERIC"
+    },
+    {
         "name": "is_coinbase",
         "type": "BOOLEAN",
         "description": "true if this transaction is a coinbase transaction"
