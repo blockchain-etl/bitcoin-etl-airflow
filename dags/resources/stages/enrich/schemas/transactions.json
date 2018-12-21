@@ -1,11 +1,5 @@
 [
     {
-        "name": "txid",
-        "type": "STRING",
-        "mode": "REQUIRED",
-        "description": "The 256-bit hash of this transaction"
-    },
-    {
         "name": "hash",
         "type": "STRING",
         "description": "The 256-bit hash of this transaction"
@@ -36,14 +30,22 @@
         "description": "Hash of the block which contained this transaction"
     },
     {
-        "name": "block_height",
+        "name": "block_number",
         "type": "INT64",
         "description": "The number of blocks in the chain between this block and the genesis block."
     },
     {
-        "name": "block_time",
+        "name": "block_timestamp",
         "type": "TIMESTAMP",
         "description": "Block Creation timestamp specified in block header"
+    },
+    {
+        "name": "input_count",
+        "type": "INT64"
+    },
+    {
+        "name": "output_count",
+        "type": "INT64"
     },
     {
         "name": "inputs",
@@ -56,14 +58,27 @@
                 "description": "0-indexed number of an input within a transaction used by a later transaction to refer to that specific input"
             },
             {
+                "name": "spent_transaction_hash",
+                "type": "STRING"
+            },
+            {
+                "name": "spent_output_index",
+                "type": "INT64"
+            },
+            {
                 "name": "script_asm",
                 "type": "STRING",
                 "description": "Symbolic representation of the bitcoin's script language op-codes"
             },
             {
-                "name": "coinbase_param",
+                "name": "script_hex",
                 "type": "STRING",
-                "description": "Data contained within the coinbase transaction of this block"
+                "description": "Hexadecimal representation of the bitcoin's script language op-codes"
+            },
+            {
+                "name": "sequence",
+                "type": "INT64",
+                "description": "A number intended to allow unconfirmed time-locked transactions to be updated before being finalized; not currently used except to disable locktime in a transaction"
             },
             {
                 "name": "required_signatures",

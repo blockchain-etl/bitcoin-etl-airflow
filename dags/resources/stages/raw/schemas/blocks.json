@@ -18,7 +18,7 @@
         "description": "SHA3 of the uncles data in the block"
     },
     {
-        "name": "height",
+        "name": "number",
         "type": "INT64",
         "description": "The bloom filter for the logs of the block"
     },
@@ -33,12 +33,7 @@
         "description": "The root of the final state trie of the block"
     },
     {
-        "name": "time",
-        "type": "INT64",
-        "description": "The root of the receipts trie of the block"
-    },
-    {
-        "name": "median_time",
+        "name": "timestamp",
         "type": "INT64",
         "description": "The root of the receipts trie of the block"
     },
@@ -51,6 +46,10 @@
         "name": "bits",
         "type": "STRING",
         "description": "Integer of the difficulty for this block"
+    },
+    {
+        "name": "coinbase_param",
+        "type": "STRING"
     },
     {
         "name": "transaction_count",

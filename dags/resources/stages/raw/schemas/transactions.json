@@ -1,11 +1,5 @@
 [
     {
-        "name": "txid",
-        "type": "STRING",
-        "mode": "REQUIRED",
-        "description": "Hash of the transaction"
-    },
-    {
         "name": "hash",
         "type": "STRING",
         "description": "Hash of the transaction"
@@ -31,7 +25,7 @@
         "description": "Integer of the transactions index position in the block"
     },
     {
-        "name": "block_height",
+        "name": "block_number",
         "type": "INT64"
     },
     {
@@ -40,9 +34,17 @@
         "description": "Address of the sender"
     },
     {
-        "name": "block_time",
+        "name": "block_timestamp",
         "type": "INT64",
         "description": "Address of the receiver. null when its a contract creation transaction"
+    },
+    {
+        "name": "input_count",
+        "type": "INT64"
+    },
+    {
+        "name": "output_count",
+        "type": "INT64"
     },
     {
         "name": "inputs",
@@ -54,7 +56,7 @@
                 "type": "INT64"
             },
             {
-                "name": "spent_txid",
+                "name": "spent_transaction_hash",
                 "type": "STRING"
             },
             {
@@ -67,10 +69,6 @@
             },
             {
                 "name": "script_hex",
-                "type": "STRING"
-            },
-            {
-                "name": "coinbase_param",
                 "type": "STRING"
             },
             {
