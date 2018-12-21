@@ -26,7 +26,7 @@ grouped_enriched_inputs as (
     from enriched_flat_inputs
     group by `hash`, block_timestamp
 )
-SELECT
+select
     transactions.`hash`,
     transactions.size,
     transactions.virtual_size,
@@ -34,7 +34,7 @@ SELECT
     transactions.lock_time,
     transactions.block_hash,
     transactions.block_number,
-    TIMESTAMP_SECONDS(transactions.block_timestamp) as block_timestamp,
+    timestamp_seconds(transactions.block_timestamp) as block_timestamp,
     transactions.input_count,
     transactions.output_count,
     array(
@@ -46,6 +46,6 @@ SELECT
       order by inputs.index
     ) as inputs,
     transactions.outputs
-FROM {{dataset_name_raw}}.transactions AS transactions
+from {{dataset_name_raw}}.transactions as transactions
 left join grouped_enriched_inputs on grouped_enriched_inputs.`hash` = transactions.`hash`
     and grouped_enriched_inputs.block_timestamp = transactions.block_timestamp
