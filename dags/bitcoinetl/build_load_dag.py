@@ -192,8 +192,10 @@ def build_load_dag(
         'transactions', time_partitioning_field=None, dependencies=[load_blocks_task, load_transactions_task])
 
     verify_blocks_count_task = add_verify_tasks('blocks_count', [enrich_blocks_task])
+    verify_blocks_have_latest_task = add_verify_tasks('blocks_have_latest', [enrich_blocks_task])
     verify_transactions_count_task = add_verify_tasks('transactions_count',
                                                       [enrich_blocks_task, enrich_transactions_task])
+    verify_transactions_have_latest_task = add_verify_tasks('transactions_have_latest', [enrich_transactions_task])
 
     # if notification_emails and len(notification_emails) > 0:
     #     send_email_task = EmailOperator(
