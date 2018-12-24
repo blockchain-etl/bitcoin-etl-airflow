@@ -12,7 +12,7 @@ select if(
 ), erroneous_blocks as (
     select block_number
     from block_rewards
-    where block_reward % (5000000000 / (2 ** 9)) != 0
+    where mod(block_reward, cast((5000000000 / (pow(2, 9))) as NUMERIC)) != 0
 )
 select count(*)
 from erroneous_blocks
