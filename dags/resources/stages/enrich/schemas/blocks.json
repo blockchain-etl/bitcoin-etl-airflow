@@ -21,7 +21,7 @@
         "description": "Three times the base size plus the total size. https://github.com/bitcoin/bips/blob/master/bip-0141.mediawiki"
     },
     {
-        "name": "height",
+        "name": "number",
         "type": "INT64",
         "description": "The number of blocks in the chain between this block and the genesis block."
     },
@@ -36,14 +36,9 @@
         "description": "Hash of all the hashes of all the transactions in the block"
     },
     {
-        "name": "time",
+        "name": "timestamp",
         "type": "TIMESTAMP",
         "description": "Block Creation timestamp specified in block header"
-    },
-    {
-        "name": "median_time",
-        "type": "TIMESTAMP",
-        "description": "Median time of the past 11 block timestamps. A block must have a timestamp greater than its median time."
     },
     {
         "name": "nonce",
@@ -54,6 +49,11 @@
         "name": "bits",
         "type": "STRING",
         "description": "Difficulty threshold specified in block header (Hexadecimal)"
+    },
+    {
+        "name": "coinbase_param",
+        "type": "STRING",
+        "description": "Coinbase param"
     },
     {
         "name": "transaction_count",

@@ -1,28 +1,23 @@
 [
     {
         "name": "hash",
-        "type": "STRING",
-        "description": "Hash of the transaction"
+        "type": "STRING"
     },
     {
         "name": "size",
-        "type": "INT64",
-        "description": "The number of transactions made by the sender prior to this one"
+        "type": "INT64"
     },
     {
         "name": "virtual_size",
-        "type": "INT64",
-        "description": "Hash of the block where this transaction was in"
+        "type": "INT64"
     },
     {
         "name": "version",
-        "type": "INT64",
-        "description": "Block number where this transaction was in"
+        "type": "INT64"
     },
     {
         "name": "lock_time",
-        "type": "INT64",
-        "description": "Integer of the transactions index position in the block"
+        "type": "INT64"
     },
     {
         "name": "block_number",
@@ -30,13 +25,11 @@
     },
     {
         "name": "block_hash",
-        "type": "STRING",
-        "description": "Address of the sender"
+        "type": "STRING"
     },
     {
         "name": "block_timestamp",
-        "type": "INT64",
-        "description": "Address of the receiver. null when its a contract creation transaction"
+        "type": "INT64"
     },
     {
         "name": "input_count",
