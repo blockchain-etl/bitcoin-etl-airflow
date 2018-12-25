@@ -7,6 +7,7 @@ select
     version,
     merkle_root,
     timestamp_seconds(timestamp) as timestamp,
+    date_trunc(date(timestamp_seconds(timestamp)), MONTH) as timestamp_month,
     nonce,
     bits,
     coinbase_param,

@@ -38,7 +38,12 @@
     {
         "name": "timestamp",
         "type": "TIMESTAMP",
-        "description": "Block Creation timestamp specified in block header"
+        "description": "Block creation timestamp specified in block header"
+    },
+    {
+        "name": "timestamp_month",
+        "type": "DATE",
+        "description": "Month of the block creation timestamp specified in block header"
     },
     {
         "name": "nonce",

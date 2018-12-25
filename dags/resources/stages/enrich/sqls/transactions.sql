@@ -35,6 +35,7 @@ select
     transactions.block_hash,
     transactions.block_number,
     timestamp_seconds(transactions.block_timestamp) as block_timestamp,
+    date_trunc(date(timestamp_seconds(transactions.block_timestamp)), MONTH) as block_timestamp_month,
     transactions.input_count,
     transactions.output_count,
     (select sum(value) from unnest(grouped_enriched_inputs.inputs) as inputs) as input_value,
@@ -42,7 +43,7 @@ select
     if(transactions.input_count = 0, true, false) as is_coinbase,
     array(
       select as struct inputs.index, inputs.spent_transaction_hash, inputs.spent_output_index,
-          inputs.script_asm, inputs.script_hex,
+          inputs.script_asm, inputs.script_hex, inputs.sequence,
           enriched_inputs.required_signatures, enriched_inputs.type, enriched_inputs.addresses, enriched_inputs.value
       from unnest(grouped_enriched_inputs.inputs) as enriched_inputs
       join unnest(transactions.inputs) as inputs on inputs.index = enriched_inputs.index

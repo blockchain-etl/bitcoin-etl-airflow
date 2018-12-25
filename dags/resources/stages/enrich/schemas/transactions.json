@@ -37,7 +37,12 @@
     {
         "name": "block_timestamp",
         "type": "TIMESTAMP",
-        "description": "Block Creation timestamp specified in block header"
+        "description": "Block creation timestamp specified in block header"
+    },
+    {
+        "name": "block_timestamp_month",
+        "type": "DATE",
+        "description": "Month of the block creation timestamp specified in block header"
     },
     {
         "name": "input_count",
@@ -145,11 +150,6 @@
                 "name": "required_signatures",
                 "type": "INT64",
                 "description": "The number of signatures required to authorize spending of this output"
-            },
-            {
-                "name": "sequence",
-                "type": "INT64",
-                "description": "A number intended to allow unconfirmed time-locked transactions to be updated before being finalized; not currently used except to disable locktime in a transaction"
             },
             {
                 "name": "type",

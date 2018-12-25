@@ -101,10 +101,6 @@
                 "type": "INT64"
             },
             {
-                "name": "sequence",
-                "type": "INT64"
-            },
-            {
                 "name": "type",
                 "type": "STRING"
             },
