@@ -18,5 +18,5 @@ DAG = build_export_dag(
     notification_emails=Variable.get('notification_emails', ''),
     schedule_interval='0 5 * * *',
     export_max_workers=4,
-    export_batch_size=4
+    export_batch_size=1
 )
