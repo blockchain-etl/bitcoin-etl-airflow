@@ -1,7 +1,8 @@
 [
     {
         "name": "hash",
-        "type": "STRING"
+        "type": "STRING",
+        "mode": "REQUIRED"
     },
     {
         "name": "size",
@@ -21,15 +22,18 @@
     },
     {
         "name": "block_number",
-        "type": "INT64"
+        "type": "INT64",
+        "mode": "REQUIRED"
     },
     {
         "name": "block_hash",
-        "type": "STRING"
+        "type": "STRING",
+        "mode": "REQUIRED"
     },
     {
         "name": "block_timestamp",
-        "type": "INT64"
+        "type": "INT64",
+        "mode": "REQUIRED"
     },
     {
         "name": "input_count",
@@ -46,7 +50,8 @@
         "fields": [
             {
                 "name": "index",
-                "type": "INT64"
+                "type": "INT64",
+                "mode": "REQUIRED"
             },
             {
                 "name": "spent_transaction_hash",
@@ -86,7 +91,8 @@
         "fields": [
             {
                 "name": "index",
-                "type": "INT64"
+                "type": "INT64",
+                "mode": "REQUIRED"
             },
             {
                 "name": "script_asm",

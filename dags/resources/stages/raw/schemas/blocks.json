@@ -18,7 +18,8 @@
     },
     {
         "name": "number",
-        "type": "INT64"
+        "type": "INT64",
+        "mode": "REQUIRED"
     },
     {
         "name": "version",

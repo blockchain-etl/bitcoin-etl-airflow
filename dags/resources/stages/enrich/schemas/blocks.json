@@ -23,6 +23,7 @@
     {
         "name": "number",
         "type": "INT64",
+        "mode": "REQUIRED",
         "description": "The number of the block"
     },
     {
@@ -38,11 +39,13 @@
     {
         "name": "timestamp",
         "type": "TIMESTAMP",
+        "mode": "REQUIRED",
         "description": "Block creation timestamp specified in block header"
     },
     {
         "name": "timestamp_month",
         "type": "DATE",
+        "mode": "REQUIRED",
         "description": "Month of the block creation timestamp specified in block header"
     },
     {
