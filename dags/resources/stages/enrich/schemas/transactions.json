@@ -2,7 +2,7 @@
     {
         "name": "hash",
         "type": "STRING",
-        "description": "The 256-bit hash of this transaction"
+        "description": "The hash of this transaction"
     },
     {
         "name": "size",
@@ -12,7 +12,7 @@
     {
         "name": "virtual_size",
         "type": "INT64",
-        "description": "The weight of the transaction divided by 4"
+        "description": "The virtual transaction size (differs from size for witness transactions)"
     },
     {
         "name": "version",
@@ -27,38 +27,42 @@
     {
         "name": "block_hash",
         "type": "STRING",
-        "description": "Hash of the block which contained this transaction"
+        "description": "Hash of the block which contains this transaction"
     },
     {
         "name": "block_number",
         "type": "INT64",
-        "description": "The number of blocks in the chain between this block and the genesis block."
+        "description": "Number of the block which contains this transaction"
     },
     {
         "name": "block_timestamp",
         "type": "TIMESTAMP",
-        "description": "Block creation timestamp specified in block header"
+        "description": "Timestamp of the block which contains this transaction"
     },
     {
         "name": "block_timestamp_month",
         "type": "DATE",
-        "description": "Month of the block creation timestamp specified in block header"
+        "description": "Month of the block which contains this transaction"
     },
     {
         "name": "input_count",
-        "type": "INT64"
+        "type": "INT64",
+        "description": "The number of inputs in the transaction"
     },
     {
         "name": "output_count",
-        "type": "INT64"
+        "type": "INT64",
+        "description": "The number of outputs in the transaction"
     },
     {
         "name": "input_value",
-        "type": "NUMERIC"
+        "type": "NUMERIC",
+        "description": "Total value of inputs in the transaction"
     },
     {
         "name": "output_value",
-        "type": "NUMERIC"
+        "type": "NUMERIC",
+        "description": "Total value of outputs in the transaction"
     },
     {
         "name": "is_coinbase",
@@ -74,19 +78,22 @@
         "name": "inputs",
         "type": "record",
         "mode": "repeated",
+        "description": "Transaction inputs",
         "fields": [
             {
                 "name": "index",
                 "type": "INT64",
-                "description": "0-indexed number of an input within a transaction used by a later transaction to refer to that specific input"
+                "description": "0-indexed number of an input within a transaction"
             },
             {
                 "name": "spent_transaction_hash",
-                "type": "STRING"
+                "type": "STRING",
+                "description": "The hash of the transaction which contains the output that this input spends"
             },
             {
                 "name": "spent_output_index",
-                "type": "INT64"
+                "type": "INT64",
+                "description": "The index of the output this input spends"
             },
             {
                 "name": "script_asm",
@@ -106,23 +113,23 @@
             {
                 "name": "required_signatures",
                 "type": "INT64",
-                "description": "The number of signatures required to authorize spending of this input"
+                "description": "The number of signatures required to authorize the spent output"
             },
             {
                 "name": "type",
                 "type": "STRING",
-                "description": "The address type of the input"
+                "description": "The address type of the spent output"
             },
             {
                 "name": "addresses",
                 "type": "STRING",
                 "mode": "repeated",
-                "description": "Addresses which own this input"
+                "description": "Addresses which own the spent output"
             },
             {
                 "name": "value",
                 "type": "NUMERIC",
-                "description": "The value in base currency attached to this input"
+                "description": "The value in base currency attached to the spent output"
             }
         ]
     },
@@ -130,6 +137,7 @@
         "name": "outputs",
         "type": "record",
         "mode": "repeated",
+        "description": "Transaction outputs",
         "fields": [
             {
                 "name": "index",

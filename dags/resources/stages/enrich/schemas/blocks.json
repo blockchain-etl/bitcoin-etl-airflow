@@ -8,12 +8,12 @@
     {
         "name": "size",
         "type": "INT64",
-        "description": "The size all block data in bytes"
+        "description": "The size of block data in bytes"
     },
     {
         "name": "stripped_size",
         "type": "INT64",
-        "description": "The size all block data in bytes excluding witness data"
+        "description": "The size of block data in bytes excluding witness data"
     },
     {
         "name": "weight",
@@ -23,7 +23,7 @@
     {
         "name": "number",
         "type": "INT64",
-        "description": "The number of blocks in the chain between this block and the genesis block."
+        "description": "The number of the block"
     },
     {
         "name": "version",
@@ -33,7 +33,7 @@
     {
         "name": "merkle_root",
         "type": "STRING",
-        "description": "Hash of all the hashes of all the transactions in the block"
+        "description": "The root node of a Merkle tree, where leaves are transaction hashes"
     },
     {
         "name": "timestamp",
@@ -48,21 +48,21 @@
     {
         "name": "nonce",
         "type": "INT64",
-        "description": "Difficulty solution specified in block header (Integer)"
+        "description": "Difficulty solution specified in block header"
     },
     {
         "name": "bits",
         "type": "STRING",
-        "description": "Difficulty threshold specified in block header (Hexadecimal)"
+        "description": "Difficulty threshold specified in block header"
     },
     {
         "name": "coinbase_param",
         "type": "STRING",
-        "description": "Coinbase param"
+        "description": "Data specified in the coinbase transaction of this block"
     },
     {
         "name": "transaction_count",
         "type": "INT64",
-        "description": "Number of Transactions included in this block"
+        "description": "Number of transactions included in this block"
     }
 ]
