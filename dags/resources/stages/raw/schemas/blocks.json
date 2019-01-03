@@ -35,7 +35,7 @@
     },
     {
         "name": "nonce",
-        "type": "INT64"
+        "type": "STRING"
     },
     {
         "name": "bits",

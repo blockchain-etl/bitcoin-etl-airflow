@@ -50,7 +50,7 @@
     },
     {
         "name": "nonce",
-        "type": "INT64",
+        "type": "STRING",
         "description": "Difficulty solution specified in block header"
     },
     {
