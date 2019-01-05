@@ -36,6 +36,11 @@
         "mode": "REQUIRED"
     },
     {
+        "name": "is_coinbase",
+        "type": "BOOLEAN",
+        "description": "true if this transaction is a coinbase transaction"
+    },
+    {
         "name": "input_count",
         "type": "INT64"
     },
