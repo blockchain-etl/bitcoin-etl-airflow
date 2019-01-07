@@ -42,9 +42,17 @@ select
     (select sum(value) from unnest(grouped_enriched_inputs.inputs) as inputs) as input_value,
     (select sum(value) from unnest(transactions.outputs) as outputs) as output_value,
     array(
-      select as struct inputs.index, inputs.spent_transaction_hash, inputs.spent_output_index,
-          inputs.script_asm, inputs.script_hex, inputs.sequence,
-          enriched_inputs.required_signatures, enriched_inputs.type, enriched_inputs.addresses, enriched_inputs.value
+      select as struct
+          inputs.index,
+          inputs.spent_transaction_hash,
+          inputs.spent_output_index,
+          inputs.script_asm,
+          inputs.script_hex,
+          inputs.sequence,
+          enriched_inputs.required_signatures,
+          coalesce(enriched_inputs.type, inputs.type) as type,
+          coalesce(enriched_inputs.addresses, inputs.addresses) as addresses,
+          coalesce(enriched_inputs.value, inputs.value) as value
       from unnest(grouped_enriched_inputs.inputs) as enriched_inputs
       join unnest(transactions.inputs) as inputs on inputs.index = enriched_inputs.index
       order by inputs.index

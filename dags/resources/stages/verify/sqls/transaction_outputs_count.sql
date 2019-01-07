@@ -1,5 +1,5 @@
-select if((select sum(output_count) from `{{destination_dataset_project_id}}.{{dataset_name}}.transactions`) =
-(select count(*)
-    from `{{destination_dataset_project_id}}.{{dataset_name}}.transactions` as transactions,
-    transactions.outputs as outputs), 1,
-cast((select 'Total number of outputs in transactions is not equal to sum of output_count in transactions table') as INT64))
+select if((select count(*)
+    from `{{destination_dataset_project_id}}.{{dataset_name}}.transactions` as transactions
+    where output_count != array_length(outputs)
+    ) = 0, 1,
+cast((select 'Output counts dont match') as INT64))

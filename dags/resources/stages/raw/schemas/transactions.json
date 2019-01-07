@@ -79,6 +79,10 @@
                 "type": "INT64"
             },
             {
+                "name": "type",
+                "type": "STRING"
+            },
+            {
                 "name": "addresses",
                 "type": "STRING",
                 "mode": "repeated"
