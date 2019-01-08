@@ -193,9 +193,9 @@ def build_load_dag(
                 client.delete_table(temp_table_ref)
 
             if is_view:
-                enrich_table()
-            else:
                 enrich_view()
+            else:
+                enrich_table()
 
         enrich_operator = PythonOperator(
             task_id='enrich_{task}'.format(task=task),
