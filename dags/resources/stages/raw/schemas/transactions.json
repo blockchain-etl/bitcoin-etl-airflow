@@ -1,48 +1,52 @@
 [
     {
-        "name": "txid",
-        "type": "STRING",
-        "mode": "REQUIRED",
-        "description": "Hash of the transaction"
-    },
-    {
         "name": "hash",
         "type": "STRING",
-        "description": "Hash of the transaction"
+        "mode": "REQUIRED"
     },
     {
         "name": "size",
-        "type": "INT64",
-        "description": "The number of transactions made by the sender prior to this one"
+        "type": "INT64"
     },
     {
         "name": "virtual_size",
-        "type": "INT64",
-        "description": "Hash of the block where this transaction was in"
+        "type": "INT64"
     },
     {
         "name": "version",
-        "type": "INT64",
-        "description": "Block number where this transaction was in"
+        "type": "INT64"
     },
     {
         "name": "lock_time",
-        "type": "INT64",
-        "description": "Integer of the transactions index position in the block"
+        "type": "INT64"
     },
     {
-        "name": "block_height",
-        "type": "INT64"
+        "name": "block_number",
+        "type": "INT64",
+        "mode": "REQUIRED"
     },
     {
         "name": "block_hash",
         "type": "STRING",
-        "description": "Address of the sender"
+        "mode": "REQUIRED"
     },
     {
-        "name": "block_time",
+        "name": "block_timestamp",
         "type": "INT64",
-        "description": "Address of the receiver. null when its a contract creation transaction"
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "is_coinbase",
+        "type": "BOOLEAN",
+        "description": "true if this transaction is a coinbase transaction"
+    },
+    {
+        "name": "input_count",
+        "type": "INT64"
+    },
+    {
+        "name": "output_count",
+        "type": "INT64"
     },
     {
         "name": "inputs",
@@ -51,10 +55,11 @@
         "fields": [
             {
                 "name": "index",
-                "type": "INT64"
+                "type": "INT64",
+                "mode": "REQUIRED"
             },
             {
-                "name": "spent_txid",
+                "name": "spent_transaction_hash",
                 "type": "STRING"
             },
             {
@@ -68,46 +73,6 @@
             {
                 "name": "script_hex",
                 "type": "STRING"
-            },
-            {
-                "name": "coinbase_param",
-                "type": "STRING"
-            },
-            {
-                "name": "sequence",
-                "type": "INT64"
-            },
-            {
-                "name": "addresses",
-                "type": "STRING",
-                "mode": "repeated"
-            },
-            {
-                "name": "value",
-                "type": "INT64"
-            }
-        ]
-    },
-    {
-        "name": "outputs",
-        "type": "record",
-        "mode": "repeated",
-        "fields": [
-            {
-                "name": "index",
-                "type": "INT64"
-            },
-            {
-                "name": "script_asm",
-                "type": "STRING"
-            },
-            {
-                "name": "script_hex",
-                "type": "STRING"
-            },
-            {
-                "name": "required_signatures",
-                "type": "INT64"
             },
             {
                 "name": "sequence",
@@ -124,7 +89,44 @@
             },
             {
                 "name": "value",
+                "type": "NUMERIC"
+            }
+        ]
+    },
+    {
+        "name": "outputs",
+        "type": "record",
+        "mode": "repeated",
+        "fields": [
+            {
+                "name": "index",
+                "type": "INT64",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "script_asm",
+                "type": "STRING"
+            },
+            {
+                "name": "script_hex",
+                "type": "STRING"
+            },
+            {
+                "name": "required_signatures",
                 "type": "INT64"
+            },
+            {
+                "name": "type",
+                "type": "STRING"
+            },
+            {
+                "name": "addresses",
+                "type": "STRING",
+                "mode": "repeated"
+            },
+            {
+                "name": "value",
+                "type": "NUMERIC"
             }
         ]
     }

@@ -1,14 +1,15 @@
-SELECT
+select
     `hash`,
     size,
     stripped_size,
     weight,
-    height,
+    number,
     version,
     merkle_root,
-    TIMESTAMP_SECONDS(time) as time,
-    TIMESTAMP_SECONDS(median_time) as median_time,
+    timestamp_seconds(timestamp) as timestamp,
+    date_trunc(date(timestamp_seconds(timestamp)), MONTH) as timestamp_month,
     nonce,
     bits,
+    coinbase_param,
     transaction_count
-FROM {{dataset_name_raw}}.blocks AS blocks
+from {{dataset_name_raw}}.blocks as blocks

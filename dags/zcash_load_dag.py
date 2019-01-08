@@ -12,10 +12,10 @@ logging.getLogger().setLevel(logging.DEBUG)
 # When searching for DAGs, Airflow will only consider files where the string “airflow” and “DAG” both appear in the
 # contents of the .py file.
 DAG = build_load_dag(
-    dag_id='dogecoin_load_dag',
-    output_bucket=Variable.get('dogecoin_output_bucket'),
+    dag_id='zcash_load_dag',
+    output_bucket=Variable.get('zcash_output_bucket'),
     destination_dataset_project_id=Variable.get('destination_dataset_project_id'),
-    chain='dogecoin',
+    chain='zcash',
     notification_emails=Variable.get('notification_emails', ''),
-    schedule_interval='30 4 * * *'
+    schedule_interval='30 7 * * *'
 )

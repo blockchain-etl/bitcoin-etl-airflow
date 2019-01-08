@@ -32,7 +32,6 @@ def build_load_dag(
         notification_emails=None,
         start_date=datetime(2018, 7, 1),
         schedule_interval='0 0 * * *'):
-
     dataset_name = '{}_blockchain'.format(chain)
     dataset_name_raw = '{}_blockchain_raw'.format(chain)
     dataset_name_temp = '{}_blockchain_temp'.format(chain)
@@ -187,13 +186,32 @@ def build_load_dag(
     load_transactions_task = add_load_tasks('transactions', 'json')
 
     enrich_blocks_task = add_enrich_tasks(
-        'blocks', time_partitioning_field=None, dependencies=[load_blocks_task])
+        'blocks', time_partitioning_field='timestamp_month', dependencies=[load_blocks_task])
     enrich_transactions_task = add_enrich_tasks(
-        'transactions', time_partitioning_field=None, dependencies=[load_blocks_task, load_transactions_task])
+        'transactions', time_partitioning_field='block_timestamp_month', dependencies=[load_transactions_task])
 
     verify_blocks_count_task = add_verify_tasks('blocks_count', [enrich_blocks_task])
+    verify_blocks_have_latest_task = add_verify_tasks('blocks_have_latest', [enrich_blocks_task])
     verify_transactions_count_task = add_verify_tasks('transactions_count',
                                                       [enrich_blocks_task, enrich_transactions_task])
+    verify_transactions_have_latest_task = add_verify_tasks('transactions_have_latest', [enrich_transactions_task])
+
+    # Fees in Dogecoin can be negative
+    if chain != 'dogecoin':
+        verify_transactions_fees_task = add_verify_tasks('transactions_fees', [enrich_transactions_task])
+    verify_coinbase_transactions_count_task = add_verify_tasks('coinbase_transactions_count',
+                                                               [enrich_blocks_task, enrich_transactions_task])
+    verify_transaction_inputs_count_task = add_verify_tasks('transaction_inputs_count',
+                                                            [enrich_transactions_task])
+    verify_transaction_outputs_count_task = add_verify_tasks('transaction_outputs_count',
+                                                             [enrich_transactions_task])
+
+    # Zcash can have empty inputs and outputs if transaction has join-splits
+    if chain != 'zcash':
+        verify_transaction_inputs_count_empty_task = add_verify_tasks('transaction_inputs_count_empty',
+                                                                [enrich_transactions_task])
+        verify_transaction_outputs_count_empty_task = add_verify_tasks('transaction_outputs_count_empty',
+                                                                 [enrich_transactions_task])
 
     # if notification_emails and len(notification_emails) > 0:
     #     send_email_task = EmailOperator(

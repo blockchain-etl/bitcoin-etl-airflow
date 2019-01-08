@@ -14,47 +14,39 @@
     },
     {
         "name": "weight",
-        "type": "INT64",
-        "description": "SHA3 of the uncles data in the block"
+        "type": "INT64"
     },
     {
-        "name": "height",
+        "name": "number",
         "type": "INT64",
-        "description": "The bloom filter for the logs of the block"
+        "mode": "REQUIRED"
     },
     {
         "name": "version",
-        "type": "INT64",
-        "description": "The root of the transaction trie of the block"
+        "type": "INT64"
     },
     {
         "name": "merkle_root",
-        "type": "STRING",
-        "description": "The root of the final state trie of the block"
+        "type": "STRING"
     },
     {
-        "name": "time",
-        "type": "INT64",
-        "description": "The root of the receipts trie of the block"
-    },
-    {
-        "name": "median_time",
-        "type": "INT64",
-        "description": "The root of the receipts trie of the block"
+        "name": "timestamp",
+        "type": "INT64"
     },
     {
         "name": "nonce",
-        "type": "INT64",
-        "description": "The address of the beneficiary to whom the mining rewards were given"
+        "type": "STRING"
     },
     {
         "name": "bits",
-        "type": "STRING",
-        "description": "Integer of the difficulty for this block"
+        "type": "STRING"
+    },
+    {
+        "name": "coinbase_param",
+        "type": "STRING"
     },
     {
         "name": "transaction_count",
-        "type": "INT64",
-        "description": "Integer of the difficulty for this block"
+        "type": "INT64"
     }
 ]

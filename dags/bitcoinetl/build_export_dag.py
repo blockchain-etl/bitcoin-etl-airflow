@@ -63,9 +63,9 @@ def build_export_dag(
         '$PYTHON3 bitcoinetl.py export_blocks_and_transactions -c $CHAIN -b $EXPORT_BATCH_SIZE -w $EXPORT_MAX_WORKERS -s $START_BLOCK -e $END_BLOCK ' \
         '-p $PROVIDER_URI --blocks-output blocks.json --transactions-output transactions.json && ' \
         '$PYTHON3 bitcoinetl.py filter_items -i blocks.json -o blocks_filtered.json ' \
-        '-p "datetime.datetime.fromtimestamp(item[\'time\']).astimezone(datetime.timezone.utc).strftime(\'%Y-%m-%d\') == \'$EXECUTION_DATE\'" && ' \
+        '-p "datetime.datetime.fromtimestamp(item[\'timestamp\']).astimezone(datetime.timezone.utc).strftime(\'%Y-%m-%d\') == \'$EXECUTION_DATE\'" && ' \
         '$PYTHON3 bitcoinetl.py filter_items -i transactions.json -o transactions_filtered.json ' \
-        '-p "datetime.datetime.fromtimestamp(item[\'block_time\']).astimezone(datetime.timezone.utc).strftime(\'%Y-%m-%d\') == \'$EXECUTION_DATE\'" && ' \
+        '-p "datetime.datetime.fromtimestamp(item[\'block_timestamp\']).astimezone(datetime.timezone.utc).strftime(\'%Y-%m-%d\') == \'$EXECUTION_DATE\'" && ' \
         'gsutil cp blocks_filtered.json $EXPORT_LOCATION_URI/blocks/block_date=$EXECUTION_DATE/blocks.json && ' \
         'gsutil cp transactions_filtered.json $EXPORT_LOCATION_URI/transactions/block_date=$EXECUTION_DATE/transactions.json && ' \
         'gsutil cp blocks_meta.txt $EXPORT_LOCATION_URI/blocks_meta/block_date=$EXECUTION_DATE/blocks_meta.txt '

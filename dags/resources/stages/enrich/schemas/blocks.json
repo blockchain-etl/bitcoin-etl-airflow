@@ -2,50 +2,70 @@
     {
         "name": "hash",
         "type": "STRING",
-        "mode": "REQUIRED"
+        "mode": "REQUIRED",
+        "description": "Hash of this block"
     },
     {
         "name": "size",
-        "type": "INT64"
+        "type": "INT64",
+        "description": "The size of block data in bytes"
     },
     {
         "name": "stripped_size",
-        "type": "INT64"
+        "type": "INT64",
+        "description": "The size of block data in bytes excluding witness data"
     },
     {
         "name": "weight",
-        "type": "INT64"
+        "type": "INT64",
+        "description": "Three times the base size plus the total size. https://github.com/bitcoin/bips/blob/master/bip-0141.mediawiki"
     },
     {
-        "name": "height",
-        "type": "INT64"
+        "name": "number",
+        "type": "INT64",
+        "mode": "REQUIRED",
+        "description": "The number of the block"
     },
     {
         "name": "version",
-        "type": "INT64"
+        "type": "INT64",
+        "description": "Protocol version specified in block header"
     },
     {
         "name": "merkle_root",
-        "type": "STRING"
+        "type": "STRING",
+        "description": "The root node of a Merkle tree, where leaves are transaction hashes"
     },
     {
-        "name": "time",
-        "type": "TIMESTAMP"
+        "name": "timestamp",
+        "type": "TIMESTAMP",
+        "mode": "REQUIRED",
+        "description": "Block creation timestamp specified in block header"
     },
     {
-        "name": "median_time",
-        "type": "TIMESTAMP"
+        "name": "timestamp_month",
+        "type": "DATE",
+        "mode": "REQUIRED",
+        "description": "Month of the block creation timestamp specified in block header"
     },
     {
         "name": "nonce",
-        "type": "INT64"
+        "type": "STRING",
+        "description": "Difficulty solution specified in block header"
     },
     {
         "name": "bits",
-        "type": "STRING"
+        "type": "STRING",
+        "description": "Difficulty threshold specified in block header"
+    },
+    {
+        "name": "coinbase_param",
+        "type": "STRING",
+        "description": "Data specified in the coinbase transaction of this block"
     },
     {
         "name": "transaction_count",
-        "type": "INT64"
+        "type": "INT64",
+        "description": "Number of transactions included in this block"
     }
 ]
