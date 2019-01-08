@@ -106,9 +106,25 @@ def build_load_dag(
         wait_sensor >> load_operator
         return load_operator
 
-    def add_enrich_tasks(task, time_partitioning_field='time', dependencies=None):
+    def add_enrich_tasks(task, time_partitioning_field='time', is_view=False, dependencies=None):
         def enrich_task():
             client = Client()
+
+            if is_view:
+                dest_table_name = '{task}'.format(task=task)
+                dest_table_ref = client.dataset(dataset_name,
+                                                project=destination_dataset_project_id).table(dest_table_name)
+
+                sql_path = os.path.join(dags_folder, 'resources/stages/enrich/sqls/{task}.sql'.format(task=task))
+                sql = read_file(sql_path).format(chain=chain)
+
+                table = bigquery.Table(dest_table_ref)
+                table.view_query = sql
+                table.view_use_legacy_sql = False
+
+                table = client.create_table(table)
+                assert table.table_id == dest_table_name
+                return
 
             # Need to use a temporary table because bq query sets field modes to NULLABLE and descriptions to null
             # when writeDisposition is WRITE_TRUNCATE
@@ -189,6 +205,8 @@ def build_load_dag(
         'blocks', time_partitioning_field='timestamp_month', dependencies=[load_blocks_task])
     enrich_transactions_task = add_enrich_tasks(
         'transactions', time_partitioning_field='block_timestamp_month', dependencies=[load_transactions_task])
+    enrich_inputs_task = add_enrich_tasks('inputs', is_view=True, dependencies=[enrich_transactions_task])
+    enrich_outputs_task = add_enrich_tasks('outputs', is_view=True, dependencies=[enrich_transactions_task])
 
     verify_blocks_count_task = add_verify_tasks('blocks_count', [enrich_blocks_task])
     verify_blocks_have_latest_task = add_verify_tasks('blocks_have_latest', [enrich_blocks_task])
