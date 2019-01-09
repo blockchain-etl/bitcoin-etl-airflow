@@ -1,1 +1,2 @@
-An output contains instructions for sending currency.
+Outputs from all transactions.
+Data is exported using https://github.com/blockchain-etl/bitcoin-etl

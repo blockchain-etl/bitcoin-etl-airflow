@@ -1,12 +1,14 @@
 SELECT
-  transactions.hash
-, outputs.index
-, outputs.script_asm
-, outputs.script_hex
-, outputs.sequence
-, outputs.required_signatures
-, outputs.type
-, outputs.addresses
-, outputs.value
-FROM `{{destination_dataset_project_id}}.{{dataset_name}}.transactions` as transactions
-CROSS JOIN UNNEST(transactions.outputs) as outputs
+    transactions.hash as transaction_hash,
+    transactions.block_hash,
+    transactions.block_number,
+    transactions.block_timestamp,
+    outputs.index,
+    outputs.script_asm,
+    outputs.script_hex,
+    outputs.required_signatures,
+    outputs.type,
+    outputs.addresses,
+    outputs.value
+FROM `{{destination_dataset_project_id}}.{{dataset_name}}.transactions` as transactions,
+    transactions.outputs as outputs
