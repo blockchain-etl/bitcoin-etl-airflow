@@ -106,53 +106,96 @@ def build_load_dag(
         wait_sensor >> load_operator
         return load_operator
 
-    def add_enrich_tasks(task, time_partitioning_field='time', dependencies=None):
+    def add_enrich_tasks(task, time_partitioning_field='time', is_view=False, dependencies=None):
         def enrich_task():
             client = Client()
 
-            # Need to use a temporary table because bq query sets field modes to NULLABLE and descriptions to null
-            # when writeDisposition is WRITE_TRUNCATE
+            def enrich_table():
+                # Need to use a temporary table because bq query sets field modes to NULLABLE and descriptions to null
+                # when writeDisposition is WRITE_TRUNCATE
 
-            # Create a temporary table
-            temp_table_name = '{task}_{milliseconds}'.format(task=task, milliseconds=int(round(time.time() * 1000)))
-            temp_table_ref = client.dataset(dataset_name_temp).table(temp_table_name)
+                # Create a temporary table
+                temp_table_name = '{task}_{milliseconds}'.format(task=task, milliseconds=int(round(time.time() * 1000)))
+                temp_table_ref = client.dataset(dataset_name_temp).table(temp_table_name)
+                table = Table(temp_table_ref)
 
-            schema_path = os.path.join(dags_folder, 'resources/stages/enrich/schemas/{task}.json'.format(task=task))
-            schema = read_bigquery_schema_from_file(schema_path)
-            table = Table(temp_table_ref, schema=schema)
+                description_path = os.path.join(
+                    dags_folder, 'resources/stages/enrich/descriptions/{task}.txt'.format(task=task))
+                table.description = read_file(description_path)
+                if time_partitioning_field is not None:
+                    table.time_partitioning = TimePartitioning(field=time_partitioning_field)
+                logging.info('Creating table: ' + json.dumps(table.to_api_repr()))
 
-            description_path = os.path.join(
-                dags_folder, 'resources/stages/enrich/descriptions/{task}.txt'.format(task=task))
-            table.description = read_file(description_path)
-            if time_partitioning_field is not None:
-                table.time_partitioning = TimePartitioning(field=time_partitioning_field)
-            logging.info('Creating table: ' + json.dumps(table.to_api_repr()))
-            table = client.create_table(table)
-            assert table.table_id == temp_table_name
+                schema_path = os.path.join(dags_folder, 'resources/stages/enrich/schemas/{task}.json'.format(task=task))
+                schema = read_bigquery_schema_from_file(schema_path)
+                table.schema = schema
 
-            # Query from raw to temporary table
-            query_job_config = QueryJobConfig()
-            # Finishes faster, query limit for concurrent interactive queries is 50
-            query_job_config.priority = QueryPriority.INTERACTIVE
-            query_job_config.destination = temp_table_ref
-            sql_path = os.path.join(dags_folder, 'resources/stages/enrich/sqls/{task}.sql'.format(task=task))
-            sql = read_file(sql_path, environment)
-            query_job = client.query(sql, location='US', job_config=query_job_config)
-            submit_bigquery_job(query_job, query_job_config)
-            assert query_job.state == 'DONE'
+                table = client.create_table(table)
+                assert table.table_id == temp_table_name
 
-            # Copy temporary table to destination
-            copy_job_config = CopyJobConfig()
-            copy_job_config.write_disposition = 'WRITE_TRUNCATE'
+                # Query from raw to temporary table
+                query_job_config = QueryJobConfig()
+                # Finishes faster, query limit for concurrent interactive queries is 50
+                query_job_config.priority = QueryPriority.INTERACTIVE
+                query_job_config.destination = temp_table_ref
+                sql_path = os.path.join(dags_folder, 'resources/stages/enrich/sqls/{task}.sql'.format(task=task))
+                sql = read_file(sql_path, environment)
+                query_job = client.query(sql, location='US', job_config=query_job_config)
+                submit_bigquery_job(query_job, query_job_config)
+                assert query_job.state == 'DONE'
 
-            dest_table_name = '{task}'.format(task=task)
-            dest_table_ref = client.dataset(dataset_name, project=destination_dataset_project_id).table(dest_table_name)
-            copy_job = client.copy_table(temp_table_ref, dest_table_ref, location='US', job_config=copy_job_config)
-            submit_bigquery_job(copy_job, copy_job_config)
-            assert copy_job.state == 'DONE'
+                # Copy temporary table to destination
+                copy_job_config = CopyJobConfig()
+                copy_job_config.write_disposition = 'WRITE_TRUNCATE'
 
-            # Delete temp table
-            client.delete_table(temp_table_ref)
+                dest_table_name = '{task}'.format(task=task)
+                dest_table_ref = client.dataset(dataset_name, project=destination_dataset_project_id).table(dest_table_name)
+                copy_job = client.copy_table(temp_table_ref, dest_table_ref, location='US', job_config=copy_job_config)
+                submit_bigquery_job(copy_job, copy_job_config)
+                assert copy_job.state == 'DONE'
+
+                # Delete temp table
+                client.delete_table(temp_table_ref)
+
+            def enrich_view():
+                # Create a temporary table
+                temp_table_name = '{task}_{milliseconds}'.format(task=task, milliseconds=int(round(time.time() * 1000)))
+                temp_table_ref = client.dataset(dataset_name_temp).table(temp_table_name)
+                table = Table(temp_table_ref)
+
+                sql_path = os.path.join(dags_folder, 'resources/stages/enrich/sqls/{task}.sql'.format(task=task))
+                sql = read_file(sql_path).format(chain=chain)
+
+                table.view_query = sql
+                table.view_use_legacy_sql = False
+
+                description_path = os.path.join(
+                    dags_folder, 'resources/stages/enrich/descriptions/{task}.txt'.format(task=task))
+                table.description = read_file(description_path)
+                if time_partitioning_field is not None:
+                    table.time_partitioning = TimePartitioning(field=time_partitioning_field)
+                logging.info('Creating table: ' + json.dumps(table.to_api_repr()))
+
+                table = client.create_table(table)
+                assert table.table_id == temp_table_name
+
+                # Copy temporary table to destination
+                copy_job_config = CopyJobConfig()
+                copy_job_config.write_disposition = 'WRITE_TRUNCATE'
+
+                dest_table_name = '{task}'.format(task=task)
+                dest_table_ref = client.dataset(dataset_name, project=destination_dataset_project_id).table(dest_table_name)
+                copy_job = client.copy_table(temp_table_ref, dest_table_ref, location='US', job_config=copy_job_config)
+                submit_bigquery_job(copy_job, copy_job_config)
+                assert copy_job.state == 'DONE'
+
+                # Delete temp table
+                client.delete_table(temp_table_ref)
+
+            if is_view:
+                enrich_view()
+            else:
+                enrich_table()
 
         enrich_operator = PythonOperator(
             task_id='enrich_{task}'.format(task=task),
@@ -189,6 +232,10 @@ def build_load_dag(
         'blocks', time_partitioning_field='timestamp_month', dependencies=[load_blocks_task])
     enrich_transactions_task = add_enrich_tasks(
         'transactions', time_partitioning_field='block_timestamp_month', dependencies=[load_transactions_task])
+    enrich_inputs_task = add_enrich_tasks('inputs', is_view=True, time_partitioning_field=None,
+            dependencies=[enrich_transactions_task])
+    enrich_outputs_task = add_enrich_tasks('outputs', is_view=True, time_partitioning_field=None,
+            dependencies=[enrich_transactions_task])
 
     verify_blocks_count_task = add_verify_tasks('blocks_count', [enrich_blocks_task])
     verify_blocks_have_latest_task = add_verify_tasks('blocks_have_latest', [enrich_blocks_task])
