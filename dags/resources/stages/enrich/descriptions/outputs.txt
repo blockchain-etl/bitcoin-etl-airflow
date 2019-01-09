@@ -1,0 +1,1 @@
+An output contains instructions for sending currency.
