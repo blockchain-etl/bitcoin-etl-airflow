@@ -21,9 +21,9 @@ logging.getLogger().setLevel(logging.DEBUG)
 
 
 # The following datasets must be created in BigQuery:
-# - {chain}_blockchain_raw
-# - {chain}_blockchain_temp
-# - {chain}_blockchain
+# - crypto_{chain}_raw
+# - crypto_{chain}_temp
+# - crypto_{chain}
 
 def build_load_dag(
         dag_id,
@@ -33,9 +33,9 @@ def build_load_dag(
         notification_emails=None,
         start_date=datetime(2018, 7, 1),
         schedule_interval='0 0 * * *'):
-    dataset_name = '{}_blockchain'.format(chain)
-    dataset_name_raw = '{}_blockchain_raw'.format(chain)
-    dataset_name_temp = '{}_blockchain_temp'.format(chain)
+    dataset_name = 'crypto_{}'.format(chain)
+    dataset_name_raw = 'crypto_{}_raw'.format(chain)
+    dataset_name_temp = 'crypto_{}_temp'.format(chain)
 
     environment = {
         'dataset_name': dataset_name,
