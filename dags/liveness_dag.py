@@ -1,9 +1,9 @@
-import os
+from datetime import timedelta
 
 import airflow
 from airflow import DAG
+from airflow.models import Variable
 from airflow.operators.bash_operator import BashOperator
-from datetime import timedelta
 
 default_dag_args = {
     'retries': 1,
@@ -12,7 +12,7 @@ default_dag_args = {
     'email_on_failure': True,
 }
 
-notification_emails = os.environ.get('NOTIFICATION_EMAILS')
+notification_emails = Variable.get('notification_emails', '')
 if notification_emails and len(notification_emails) > 0:
     default_dag_args['email'] = [email.strip() for email in notification_emails.split(',')]
 
