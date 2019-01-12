@@ -239,6 +239,7 @@ def build_load_dag(
                                                       [enrich_blocks_task, enrich_transactions_task])
     verify_transactions_have_latest_task = add_verify_tasks('transactions_have_latest', [enrich_transactions_task])
 
+    verify_transactions_fees_task = None
     # Fees in Dogecoin can be negative
     if chain != 'dogecoin':
         verify_transactions_fees_task = add_verify_tasks('transactions_fees', [enrich_transactions_task])
@@ -249,6 +250,8 @@ def build_load_dag(
     verify_transaction_outputs_count_task = add_verify_tasks('transaction_outputs_count',
                                                              [enrich_transactions_task])
 
+    verify_transaction_inputs_count_empty_task = None
+    verify_transaction_outputs_count_empty_task = None
     # Zcash can have empty inputs and outputs if transaction has join-splits
     if chain != 'zcash':
         verify_transaction_inputs_count_empty_task = add_verify_tasks('transaction_inputs_count_empty',
@@ -256,18 +259,32 @@ def build_load_dag(
         verify_transaction_outputs_count_empty_task = add_verify_tasks('transaction_outputs_count_empty',
                                                                        [enrich_transactions_task])
 
-    # if notification_emails and len(notification_emails) > 0:
-    #     send_email_task = EmailOperator(
-    #         task_id='send_email',
-    #         to=[email.strip() for email in notification_emails.split(',')],
-    #         subject='Bitcoin ETL Airflow Load DAG Succeeded',
-    #         html_content='Bitcoin ETL Airflow Load DAG Succeeded',
-    #         dag=dag
-    #     )
-    # verify_blocks_count_task >> send_email_task
-    # verify_blocks_have_latest_task >> send_email_task
-    # verify_transactions_count_task >> send_email_task
-    # verify_transactions_have_latest_task >> send_email_task
+    if notification_emails and len(notification_emails) > 0:
+        send_email_task = EmailOperator(
+            task_id='send_email',
+            to=[email.strip() for email in notification_emails.split(',')],
+            subject='Bitcoin ETL Airflow Load DAG Succeeded',
+            html_content='Bitcoin ETL Airflow Load DAG Succeeded',
+            dag=dag
+        )
+        verify_blocks_count_task >> send_email_task
+        verify_blocks_have_latest_task >> send_email_task
+        verify_transactions_count_task >> send_email_task
+        verify_transactions_have_latest_task >> send_email_task
+
+        if verify_transactions_fees_task is not None:
+            verify_transactions_fees_task >> send_email_task
+
+        create_view_inputs_task >> send_email_task
+        create_view_outputs_task >> send_email_task
+        verify_coinbase_transactions_count_task >> send_email_task
+        verify_transaction_inputs_count_task >> send_email_task
+        verify_transaction_outputs_count_task >> send_email_task
+
+        if verify_transaction_inputs_count_empty_task is not None:
+            verify_transaction_inputs_count_empty_task >> send_email_task
+        if verify_transaction_outputs_count_empty_task is not None:
+            verify_transaction_outputs_count_empty_task >> send_email_task
 
     return dag
 
