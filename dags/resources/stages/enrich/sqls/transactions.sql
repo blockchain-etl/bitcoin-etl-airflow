@@ -58,10 +58,10 @@ select
       order by inputs.index
     ) as inputs,
     transactions.outputs,
-    if(transactions.input_count > 0,
+    if(not transactions.is_coinbase,
     (
-        (select sum(value) from unnest(grouped_enriched_inputs.inputs) as inputs) -
-        (select sum(value) from unnest(transactions.outputs) as outputs)
+        coalesce((select sum(value) from unnest(grouped_enriched_inputs.inputs) as inputs), 0) -
+        coalesce((select sum(value) from unnest(transactions.outputs) as outputs), 0)
     ), 0) as fee
 from {{dataset_name_raw}}.transactions as transactions
 left join grouped_enriched_inputs on grouped_enriched_inputs.`hash` = transactions.`hash`
