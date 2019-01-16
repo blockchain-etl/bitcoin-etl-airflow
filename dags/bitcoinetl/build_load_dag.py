@@ -238,11 +238,8 @@ def build_load_dag(
     verify_transactions_count_task = add_verify_tasks('transactions_count',
                                                       [enrich_blocks_task, enrich_transactions_task])
     verify_transactions_have_latest_task = add_verify_tasks('transactions_have_latest', [enrich_transactions_task])
+    verify_transactions_fees_task = add_verify_tasks('transactions_fees', [enrich_transactions_task])
 
-    verify_transactions_fees_task = None
-    # Fees in Dogecoin can be negative
-    if chain != 'dogecoin':
-        verify_transactions_fees_task = add_verify_tasks('transactions_fees', [enrich_transactions_task])
     verify_coinbase_transactions_count_task = add_verify_tasks('coinbase_transactions_count',
                                                                [enrich_blocks_task, enrich_transactions_task])
     verify_transaction_inputs_count_task = add_verify_tasks('transaction_inputs_count',
@@ -271,9 +268,7 @@ def build_load_dag(
         verify_blocks_have_latest_task >> send_email_task
         verify_transactions_count_task >> send_email_task
         verify_transactions_have_latest_task >> send_email_task
-
-        if verify_transactions_fees_task is not None:
-            verify_transactions_fees_task >> send_email_task
+        verify_transactions_fees_task >> send_email_task
 
         create_view_inputs_task >> send_email_task
         create_view_outputs_task >> send_email_task
