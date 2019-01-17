@@ -14,9 +14,9 @@ enriched_flat_inputs as (
         flat_inputs.`hash`,
         flat_inputs.block_timestamp,
         flat_outputs.required_signatures,
-        flat_outputs.type,
-        flat_outputs.addresses,
-        flat_outputs.value
+        coalesce(flat_outputs.type, flat_inputs.type) as type,
+        coalesce(flat_outputs.addresses, flat_inputs.addresses) as addresses,
+        coalesce(flat_outputs.value, flat_inputs.value) as value
     from flat_inputs
     left join flat_outputs on flat_inputs.spent_transaction_hash = flat_outputs.`hash`
         and flat_inputs.spent_output_index = flat_outputs.index
@@ -50,9 +50,9 @@ select
           inputs.script_hex,
           inputs.sequence,
           enriched_inputs.required_signatures,
-          coalesce(enriched_inputs.type, inputs.type) as type,
-          coalesce(enriched_inputs.addresses, inputs.addresses) as addresses,
-          coalesce(enriched_inputs.value, inputs.value) as value
+          enriched_inputs.type,
+          enriched_inputs.addresses,
+          enriched_inputs.value
       from unnest(grouped_enriched_inputs.inputs) as enriched_inputs
       join unnest(transactions.inputs) as inputs on inputs.index = enriched_inputs.index
       order by inputs.index
