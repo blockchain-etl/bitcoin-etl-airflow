@@ -261,7 +261,7 @@ def build_load_dag(
             task_id='send_email',
             to=[email.strip() for email in notification_emails.split(',')],
             subject='Bitcoin ETL Airflow Load DAG Succeeded',
-            html_content='Bitcoin ETL Airflow Load DAG Succeeded',
+            html_content='Bitcoin ETL Airflow Load DAG Succeeded - {}'.format(chain),
             dag=dag
         )
         verify_blocks_count_task >> send_email_task
