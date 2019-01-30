@@ -9,7 +9,7 @@ from bitcoinetl.build_load_dag import build_load_dag
 logging.basicConfig()
 logging.getLogger().setLevel(logging.DEBUG)
 
-# When searching for DAGs, Airflow will only consider files where the string “airflow” and “DAG” both appear in the
+# When searching for DAGs, Airflow will only consider files where the string "airflow" and "DAG" both appear in the
 # contents of the .py file.
 DAG = build_load_dag(
     dag_id='bitcoin_load_dag',

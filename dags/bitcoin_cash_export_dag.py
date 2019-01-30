@@ -7,7 +7,7 @@ from airflow.models import Variable
 from bitcoinetl.build_export_dag import build_export_dag
 
 start_date = Variable.get('bitcoin_cash_export_start_date', '2009-01-03')
-# When searching for DAGs, Airflow will only consider files where the string “airflow” and “DAG” both appear in the
+# When searching for DAGs, Airflow will only consider files where the string "airflow" and "DAG" both appear in the
 # contents of the .py file.
 DAG = build_export_dag(
     dag_id='bitcoin_cash_export_dag',
