@@ -5,6 +5,7 @@ import logging
 from airflow.models import Variable
 
 from bitcoinetl.build_load_dag import build_load_dag
+from bitcoinetl.variables import parse_bool
 
 logging.basicConfig()
 logging.getLogger().setLevel(logging.DEBUG)
@@ -17,5 +18,6 @@ DAG = build_load_dag(
     destination_dataset_project_id=Variable.get('destination_dataset_project_id'),
     chain='dash',
     notification_emails=Variable.get('notification_emails', ''),
-    schedule_interval='30 6 * * *'
+    schedule_interval='30 6 * * *',
+    load_day_partition=parse_bool(Variable.get('dash_load_day_partition', 'False'))
 )

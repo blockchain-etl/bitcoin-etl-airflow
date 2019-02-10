@@ -32,7 +32,8 @@ def build_load_dag(
         chain='bitcoin',
         notification_emails=None,
         start_date=datetime(2018, 7, 1),
-        schedule_interval='0 0 * * *'):
+        schedule_interval='0 0 * * *',
+        load_day_partition=False):
     dataset_name = 'crypto_{}'.format(chain)
     dataset_name_raw = 'crypto_{}_raw'.format(chain)
     dataset_name_temp = 'crypto_{}_temp'.format(chain)
@@ -77,7 +78,7 @@ def build_load_dag(
             dag=dag
         )
 
-        def load_task():
+        def load_task(ds, **kwargs):
             client = Client()
             job_config = LoadJobConfig()
             schema_path = os.path.join(dags_folder, 'resources/stages/raw/schemas/{task}.json'.format(task=task))
@@ -89,10 +90,26 @@ def build_load_dag(
             job_config.allow_quoted_newlines = allow_quoted_newlines
             job_config.ignore_unknown_values = True
 
+            # Load from
             export_location_uri = 'gs://{bucket}/export'.format(bucket=output_bucket)
-            uri = '{export_location_uri}/{task}/*.{file_format}'.format(
-                export_location_uri=export_location_uri, task=task, file_format=file_format)
-            table_ref = client.dataset(dataset_name_raw).table(task)
+            if load_day_partition:
+                date_glob = 'block_date={}/*'.format(ds)
+            else:
+                date_glob = '*'
+            uri = '{export_location_uri}/{task}/{date_glob}.{file_format}'.format(
+                export_location_uri=export_location_uri, task=task, date_glob=date_glob,file_format=file_format)
+            logging.info('Load from uri: ' + uri)
+
+            # Table name
+            if load_day_partition:
+                # https://github.com/googleapis/google-cloud-python/issues/4806
+                table_name = '{}${}'.format(task, ds)
+            else:
+                table_name = task
+            logging.info('Table name: ' + table_name)
+            table_ref = client.dataset(dataset_name_raw).table(table_name)
+
+            # Load job
             load_job = client.load_table_from_uri(uri, table_ref, job_config=job_config)
             submit_bigquery_job(load_job, job_config)
             assert load_job.state == 'DONE'
@@ -100,6 +117,7 @@ def build_load_dag(
         load_operator = PythonOperator(
             task_id='load_{task}'.format(task=task),
             python_callable=load_task,
+            provide_context=True,
             execution_timeout=timedelta(minutes=30),
             dag=dag
         )
@@ -108,7 +126,7 @@ def build_load_dag(
         return load_operator
 
     def add_enrich_tasks(task, time_partitioning_field='time', is_view=False, dependencies=None):
-        def enrich_task():
+        def enrich_task(ds, **kwargs):
             client = Client()
 
             # Need to use a temporary table because bq query sets field modes to NULLABLE and descriptions to null
@@ -160,6 +178,7 @@ def build_load_dag(
         enrich_operator = PythonOperator(
             task_id='enrich_{task}'.format(task=task),
             python_callable=enrich_task,
+            provide_context=True,
             execution_timeout=timedelta(minutes=60),
             dag=dag
         )
