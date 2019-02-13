@@ -1,5 +1,5 @@
-merge {{dataset_name}}.blocks dest
-using {{dataset_name_temp}}.{{source_table}} source
+merge {{params.dataset_name}}.blocks dest
+using {{params.dataset_name_temp}}.{{params.source_table}} source
 on false
 when not matched and date(timestamp) = '{{ds}}' then
 insert (

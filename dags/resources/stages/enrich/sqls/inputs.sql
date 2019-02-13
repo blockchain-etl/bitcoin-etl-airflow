@@ -13,5 +13,5 @@ SELECT
     inputs.type,
     inputs.addresses,
     inputs.value
-FROM `{{destination_dataset_project_id}}.{{dataset_name}}.transactions` as transactions,
+FROM `{{params.destination_dataset_project_id}}.{{params.dataset_name}}.transactions` as transactions,
     transactions.inputs as inputs

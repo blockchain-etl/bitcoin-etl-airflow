@@ -124,8 +124,7 @@ def build_load_dag(
         def enrich_task(ds, **kwargs):
             template_context = kwargs.copy()
             template_context['ds'] = ds
-            for key, value in environment.items():
-                template_context[key] = value
+            template_context['params'] = environment
 
             client = Client()
 
@@ -186,7 +185,7 @@ def build_load_dag(
 
                 merge_sql_path = os.path.join(dags_folder, 'resources/stages/enrich/sqls/merge_{task}.sql'.format(task=task))
                 merge_sql_template = read_file(merge_sql_path)
-                template_context['source_table'] = temp_table_name
+                template_context['params']['source_table'] = temp_table_name
                 merge_sql = kwargs['task'].render_template('', merge_sql_template, template_context)
                 print('Merge sql:')
                 print(sql)
@@ -215,8 +214,7 @@ def build_load_dag(
 
             template_context = kwargs.copy()
             template_context['ds'] = ds
-            for key, value in environment.items():
-                template_context[key] = value
+            template_context['params'] = environment
 
             client = Client()
 

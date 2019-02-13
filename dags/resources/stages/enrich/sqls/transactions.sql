@@ -1,6 +1,6 @@
 with flat_inputs as (
     select transactions.`hash`, transactions.block_timestamp, inputs.*
-    from {{dataset_name_raw}}.transactions as transactions,
+    from {{params.dataset_name_raw}}.transactions as transactions,
     unnest(inputs) as inputs
     where true
         {% if not load_all_partitions %}
@@ -9,7 +9,7 @@ with flat_inputs as (
 ),
 flat_outputs as (
     select transactions.`hash`, transactions.block_timestamp, outputs.*
-    from {{dataset_name_raw}}.transactions as transactions,
+    from {{params.dataset_name_raw}}.transactions as transactions,
     unnest(outputs) as outputs
 ),
 enriched_flat_inputs as (
@@ -67,7 +67,7 @@ select
         coalesce((select sum(value) from unnest(grouped_enriched_inputs.inputs) as inputs), 0) -
         coalesce((select sum(value) from unnest(transactions.outputs) as outputs), 0)
     ), 0) as fee
-from {{dataset_name_raw}}.transactions as transactions
+from {{params.dataset_name_raw}}.transactions as transactions
 left join grouped_enriched_inputs on grouped_enriched_inputs.`hash` = transactions.`hash`
     and grouped_enriched_inputs.block_timestamp = transactions.block_timestamp
 where true

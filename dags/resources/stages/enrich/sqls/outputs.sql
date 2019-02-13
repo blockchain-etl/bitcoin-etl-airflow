@@ -10,5 +10,5 @@ SELECT
     outputs.type,
     outputs.addresses,
     outputs.value
-FROM `{{destination_dataset_project_id}}.{{dataset_name}}.transactions` as transactions,
+FROM `{{params.destination_dataset_project_id}}.{{params.dataset_name}}.transactions` as transactions,
     transactions.outputs as outputs
