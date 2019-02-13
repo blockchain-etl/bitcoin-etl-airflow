@@ -19,5 +19,5 @@ DAG = build_load_dag(
     chain='dash',
     notification_emails=Variable.get('notification_emails', ''),
     schedule_interval='30 6 * * *',
-    load_day_partition=parse_bool(Variable.get('dash_load_day_partition', 'False'))
+    load_all_partitions=parse_bool(Variable.get('dash_load_all_partitions', 'True'))
 )
