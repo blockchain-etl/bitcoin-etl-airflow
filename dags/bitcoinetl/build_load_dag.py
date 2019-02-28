@@ -249,8 +249,8 @@ def build_load_dag(
 
     verify_transaction_inputs_count_empty_task = None
     verify_transaction_outputs_count_empty_task = None
-    # Zcash can have empty inputs and outputs if transaction has join-splits
-    if chain != 'zcash':
+    # Zcash and Dash can have empty inputs and outputs if transaction has join-splits
+    if chain != 'zcash' and chain != 'dash':
         verify_transaction_inputs_count_empty_task = add_verify_tasks('transaction_inputs_count_empty',
                                                                       [enrich_transactions_task])
         verify_transaction_outputs_count_empty_task = add_verify_tasks('transaction_outputs_count_empty',
