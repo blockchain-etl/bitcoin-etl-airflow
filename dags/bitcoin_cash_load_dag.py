@@ -17,5 +17,5 @@ DAG = build_load_dag(
     destination_dataset_project_id=Variable.get('destination_dataset_project_id'),
     chain='bitcoin_cash',
     notification_emails=Variable.get('notification_emails', ''),
-    schedule_interval='30 8 * * *'
+    schedule_interval='30 17 * * *'
 )

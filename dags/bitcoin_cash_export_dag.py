@@ -16,7 +16,7 @@ DAG = build_export_dag(
     start_date=datetime.strptime(start_date, '%Y-%m-%d'),
     chain='bitcoin_cash',
     notification_emails=Variable.get('notification_emails', ''),
-    schedule_interval='0 8 * * *',
+    schedule_interval='0 17 * * *',
     export_max_workers=4,
     export_batch_size=5
 )

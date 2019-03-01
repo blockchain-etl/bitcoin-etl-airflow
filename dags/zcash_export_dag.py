@@ -16,7 +16,7 @@ DAG = build_export_dag(
     start_date=datetime.strptime(start_date, '%Y-%m-%d'),
     chain='zcash',
     notification_emails=Variable.get('notification_emails', ''),
-    schedule_interval='0 7 * * *',
+    schedule_interval='0 16 * * *',
     export_max_workers=3,
     export_batch_size=1
 )
