@@ -68,6 +68,9 @@ def build_verify_streaming_dag(
     add_verify_tasks('blocks_have_latest')
     add_verify_tasks('transactions_have_latest')
 
+    add_verify_tasks('blocks_count')
+    add_verify_tasks('transactions_count')
+
     return dag
 
 
