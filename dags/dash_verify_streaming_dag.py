@@ -13,7 +13,7 @@ logging.getLogger().setLevel(logging.DEBUG)
 # contents of the .py file.
 DAG = build_verify_streaming_dag(
     dag_id='dash_verify_streaming_dag',
-    destination_dataset_project_id=Variable.get('destination_dataset_project_id'),
+    destination_dataset_project_id=Variable.get('dash_destination_dataset_project_id'),
     chain='dash',
     notification_emails=Variable.get('notification_emails', '')
 )

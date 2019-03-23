@@ -3,7 +3,7 @@ with flat_inputs as (
     from {{params.dataset_name_raw}}.transactions as transactions,
     unnest(inputs) as inputs
     where true
-        {% if not load_all_partitions %}
+        {% if not params.load_all_partitions %}
         and date(timestamp_seconds(transactions.block_timestamp)) = '{{ds}}'
         {% endif %}
 ),
@@ -71,6 +71,6 @@ from {{params.dataset_name_raw}}.transactions as transactions
 left join grouped_enriched_inputs on grouped_enriched_inputs.`hash` = transactions.`hash`
     and grouped_enriched_inputs.block_timestamp = transactions.block_timestamp
 where true
-    {% if not load_all_partitions %}
+    {% if not params.load_all_partitions %}
     and date(timestamp_seconds(transactions.block_timestamp)) = '{{ds}}'
     {% endif %}

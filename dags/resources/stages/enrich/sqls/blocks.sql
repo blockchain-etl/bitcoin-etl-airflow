@@ -14,6 +14,6 @@ select
     transaction_count
 from {{params.dataset_name_raw}}.blocks as blocks
 where true
-    {% if not load_all_partitions %}
+    {% if not params.load_all_partitions %}
     and date(timestamp_seconds(blocks.timestamp)) = '{{ds}}'
     {% endif %}
