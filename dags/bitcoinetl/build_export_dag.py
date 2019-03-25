@@ -55,7 +55,7 @@ def build_export_dag(
         'BLOCK_RANGE=$($PYTHON3 bitcoinetl.py get_block_range_for_date -d $EXECUTION_DATE -p $PROVIDER_URI) && ' \
         'BLOCK_RANGE_ARRAY=(${BLOCK_RANGE//,/ }) && START_BLOCK=${BLOCK_RANGE_ARRAY[0]} && END_BLOCK=${BLOCK_RANGE_ARRAY[1]} && ' \
         'EXPORT_LOCATION_URI=gs://$OUTPUT_BUCKET/export && ' \
-        'export CLOUDSDK_PYTHON=/usr/local/bin/python2'
+        'export CLOUDSDK_PYTHON=/usr/bin/python2'
 
     export_blocks_and_transactions_command = \
         setup_command + ' && ' + \
