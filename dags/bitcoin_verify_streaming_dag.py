@@ -14,6 +14,7 @@ DAG = build_verify_streaming_dag(
     dag_id='bitcoin_verify_streaming_dag',
     chain='bitcoin',
     **read_verify_streaming_dag_vars(
-        var_prefix='bitcoin_'
+        var_prefix='bitcoin_',
+        max_lag_in_minutes=120,
     )
 )

@@ -46,6 +46,10 @@ def read_verify_streaming_dag_vars(var_prefix, **kwargs):
         'notification_emails': read_var('notification_emails', None, False, **kwargs),
     }
 
+    max_lag_in_minutes = read_var('max_lag_in_minutes', var_prefix, False, **kwargs)
+    if max_lag_in_minutes is not None:
+        vars['max_lag_in_minutes'] = max_lag_in_minutes
+
     return vars
 
 
