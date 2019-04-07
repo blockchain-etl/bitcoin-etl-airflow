@@ -188,7 +188,7 @@ def build_load_dag(
                 template_context['params']['source_table'] = temp_table_name
                 merge_sql = kwargs['task'].render_template('', merge_sql_template, template_context)
                 print('Merge sql:')
-                print(sql)
+                print(merge_sql)
                 merge_job = client.query(merge_sql, location='US', job_config=merge_job_config)
                 submit_bigquery_job(merge_job, merge_job_config)
                 assert merge_job.state == 'DONE'
