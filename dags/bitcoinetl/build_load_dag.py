@@ -31,8 +31,9 @@ def build_load_dag(
         destination_dataset_project_id,
         chain='bitcoin',
         notification_emails=None,
-        start_date=datetime(2018, 7, 1),
-        schedule_interval='0 0 * * *'):
+        load_start_date=datetime(2018, 7, 1),
+        schedule_interval='0 0 * * *',
+        load_all_partitions=True):
     dataset_name = 'crypto_{}'.format(chain)
     dataset_name_raw = 'crypto_{}_raw'.format(chain)
     dataset_name_temp = 'crypto_{}_temp'.format(chain)
@@ -41,12 +42,13 @@ def build_load_dag(
         'dataset_name': dataset_name,
         'dataset_name_raw': dataset_name_raw,
         'dataset_name_temp': dataset_name_temp,
-        'destination_dataset_project_id': destination_dataset_project_id
+        'destination_dataset_project_id': destination_dataset_project_id,
+        'load_all_partitions': load_all_partitions
     }
 
     default_dag_args = {
         'depends_on_past': False,
-        'start_date': start_date,
+        'start_date': load_start_date,
         'email_on_failure': True,
         'email_on_retry': True,
         'retries': 5,
@@ -77,7 +79,7 @@ def build_load_dag(
             dag=dag
         )
 
-        def load_task():
+        def load_task(ds, **kwargs):
             client = Client()
             job_config = LoadJobConfig()
             schema_path = os.path.join(dags_folder, 'resources/stages/raw/schemas/{task}.json'.format(task=task))
@@ -89,10 +91,19 @@ def build_load_dag(
             job_config.allow_quoted_newlines = allow_quoted_newlines
             job_config.ignore_unknown_values = True
 
+            # Load from
             export_location_uri = 'gs://{bucket}/export'.format(bucket=output_bucket)
-            uri = '{export_location_uri}/{task}/*.{file_format}'.format(
-                export_location_uri=export_location_uri, task=task, file_format=file_format)
-            table_ref = client.dataset(dataset_name_raw).table(task)
+            date_glob = '*'
+            uri = '{export_location_uri}/{task}/{date_glob}.{file_format}'.format(
+                export_location_uri=export_location_uri, task=task, date_glob=date_glob,file_format=file_format)
+            logging.info('Load from uri: ' + uri)
+
+            # Table name
+            table_name = task
+            logging.info('Table name: ' + table_name)
+            table_ref = client.dataset(dataset_name_raw).table(table_name)
+
+            # Load job
             load_job = client.load_table_from_uri(uri, table_ref, job_config=job_config)
             submit_bigquery_job(load_job, job_config)
             assert load_job.state == 'DONE'
@@ -100,6 +111,7 @@ def build_load_dag(
         load_operator = PythonOperator(
             task_id='load_{task}'.format(task=task),
             python_callable=load_task,
+            provide_context=True,
             execution_timeout=timedelta(minutes=30),
             dag=dag
         )
@@ -107,8 +119,13 @@ def build_load_dag(
         wait_sensor >> load_operator
         return load_operator
 
-    def add_enrich_tasks(task, time_partitioning_field='time', is_view=False, dependencies=None):
-        def enrich_task():
+    def add_enrich_tasks(task, time_partitioning_field='timestamp_month', dependencies=None):
+
+        def enrich_task(ds, **kwargs):
+            template_context = kwargs.copy()
+            template_context['ds'] = ds
+            template_context['params'] = environment
+
             client = Client()
 
             # Need to use a temporary table because bq query sets field modes to NULLABLE and descriptions to null
@@ -122,8 +139,7 @@ def build_load_dag(
             description_path = os.path.join(
                 dags_folder, 'resources/stages/enrich/descriptions/{task}.txt'.format(task=task))
             table.description = read_file(description_path)
-            if time_partitioning_field is not None:
-                table.time_partitioning = TimePartitioning(field=time_partitioning_field)
+            table.time_partitioning = TimePartitioning(field=time_partitioning_field)
             logging.info('Creating table: ' + json.dumps(table.to_api_repr()))
 
             schema_path = os.path.join(dags_folder, 'resources/stages/enrich/schemas/{task}.json'.format(task=task))
@@ -138,21 +154,44 @@ def build_load_dag(
             # Finishes faster, query limit for concurrent interactive queries is 50
             query_job_config.priority = QueryPriority.INTERACTIVE
             query_job_config.destination = temp_table_ref
+
             sql_path = os.path.join(dags_folder, 'resources/stages/enrich/sqls/{task}.sql'.format(task=task))
-            sql = read_file(sql_path, environment)
+            sql_template = read_file(sql_path)
+            sql = kwargs['task'].render_template('', sql_template, template_context)
+            print('Enrichment sql:')
+            print(sql)
+
             query_job = client.query(sql, location='US', job_config=query_job_config)
             submit_bigquery_job(query_job, query_job_config)
             assert query_job.state == 'DONE'
 
-            # Copy temporary table to destination
-            copy_job_config = CopyJobConfig()
-            copy_job_config.write_disposition = 'WRITE_TRUNCATE'
+            if load_all_partitions:
+                # Copy temporary table to destination
+                copy_job_config = CopyJobConfig()
+                copy_job_config.write_disposition = 'WRITE_TRUNCATE'
 
-            dest_table_name = '{task}'.format(task=task)
-            dest_table_ref = client.dataset(dataset_name, project=destination_dataset_project_id).table(dest_table_name)
-            copy_job = client.copy_table(temp_table_ref, dest_table_ref, location='US', job_config=copy_job_config)
-            submit_bigquery_job(copy_job, copy_job_config)
-            assert copy_job.state == 'DONE'
+                dest_table_name = '{task}'.format(task=task)
+                dest_table_ref = client.dataset(dataset_name, project=destination_dataset_project_id).table(
+                    dest_table_name)
+                copy_job = client.copy_table(temp_table_ref, dest_table_ref, location='US', job_config=copy_job_config)
+                submit_bigquery_job(copy_job, copy_job_config)
+                assert copy_job.state == 'DONE'
+            else:
+                # Merge
+                # https://cloud.google.com/bigquery/docs/reference/standard-sql/dml-syntax#merge_statement
+                merge_job_config = QueryJobConfig()
+                # Finishes faster, query limit for concurrent interactive queries is 50
+                merge_job_config.priority = QueryPriority.INTERACTIVE
+
+                merge_sql_path = os.path.join(dags_folder, 'resources/stages/enrich/sqls/merge_{task}.sql'.format(task=task))
+                merge_sql_template = read_file(merge_sql_path)
+                template_context['params']['source_table'] = temp_table_name
+                merge_sql = kwargs['task'].render_template('', merge_sql_template, template_context)
+                print('Merge sql:')
+                print(merge_sql)
+                merge_job = client.query(merge_sql, location='US', job_config=merge_job_config)
+                submit_bigquery_job(merge_job, merge_job_config)
+                assert merge_job.state == 'DONE'
 
             # Delete temp table
             client.delete_table(temp_table_ref)
@@ -160,6 +199,7 @@ def build_load_dag(
         enrich_operator = PythonOperator(
             task_id='enrich_{task}'.format(task=task),
             python_callable=enrich_task,
+            provide_context=True,
             execution_timeout=timedelta(minutes=60),
             dag=dag
         )
@@ -170,7 +210,11 @@ def build_load_dag(
         return enrich_operator
 
     def add_create_view_tasks(task, dependencies=None):
-        def create_view_task():
+        def create_view_task(ds, **kwargs):
+
+            template_context = kwargs.copy()
+            template_context['ds'] = ds
+            template_context['params'] = environment
 
             client = Client()
 
@@ -179,7 +223,8 @@ def build_load_dag(
             table = Table(dest_table_ref)
 
             sql_path = os.path.join(dags_folder, 'resources/stages/enrich/sqls/{task}.sql'.format(task=task))
-            sql = read_file(sql_path, environment)
+            sql_template = read_file(sql_path)
+            sql = kwargs['task'].render_template('', sql_template, template_context)
             table.view_query = sql
 
             description_path = os.path.join(
@@ -197,6 +242,7 @@ def build_load_dag(
         enrich_operator = PythonOperator(
             task_id='create_view_{task}'.format(task=task),
             python_callable=create_view_task,
+            provide_context=True,
             execution_timeout=timedelta(minutes=60),
             dag=dag
         )
@@ -211,11 +257,12 @@ def build_load_dag(
         # Have to use this trick since the Python 2 version of BigQueryCheckOperator doesn't support standard SQL
         # and legacy SQL can't be used to query partitioned tables.
         sql_path = os.path.join(dags_folder, 'resources/stages/verify/sqls/{task}.sql'.format(task=task))
-        sql = read_file(sql_path, environment)
+        sql = read_file(sql_path)
         verify_task = BigQueryOperator(
             task_id='verify_{task}'.format(task=task),
             sql=sql,
             use_legacy_sql=False,
+            params=environment,
             dag=dag)
         if dependencies is not None and len(dependencies) > 0:
             for dependency in dependencies:
@@ -302,16 +349,9 @@ def read_bigquery_schema_from_file(filepath):
     return read_bigquery_schema_from_json_recursive(json_content)
 
 
-def read_file(filepath, environment=None):
-    if environment is None:
-        environment = {}
-
+def read_file(filepath):
     with open(filepath) as file_handle:
         content = file_handle.read()
-        for key, value in environment.items():
-            # each bracket should be doubled to be escaped
-            # we need two escaped and one unescaped
-            content = content.replace('{{{{{key}}}}}'.format(key=key), value)
         return content
 
 

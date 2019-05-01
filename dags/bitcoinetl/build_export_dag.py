@@ -11,20 +11,20 @@ def build_export_dag(
         dag_id,
         provider_uri,
         output_bucket,
-        start_date,
+        export_start_date,
         chain='bitcoin',
         notification_emails=None,
-        schedule_interval='0 0 * * *',
+        export_schedule_interval='0 0 * * *',
         bitcoinetl_repo_branch='master',
         export_max_workers=5,
         export_batch_size=10,
-        max_active_runs=15
+        export_max_active_runs=15
 ):
     export_max_workers = str(export_max_workers)
     export_batch_size = str(export_batch_size)
     default_dag_args = {
         'depends_on_past': False,
-        'start_date': start_date,
+        'start_date': export_start_date,
         'email_on_failure': True,
         'email_on_retry': True,
         'retries': 5,
@@ -36,8 +36,8 @@ def build_export_dag(
 
     dag = DAG(
         dag_id,
-        schedule_interval=schedule_interval,
-        max_active_runs=max_active_runs,
+        schedule_interval=export_schedule_interval,
+        max_active_runs=export_max_active_runs,
         default_args=default_dag_args)
     # miniconda.tar contains Python home directory with bitcoin-etl dependencies install via pip
     # Will get rid of this once Google Cloud Composer supports Python 3
@@ -55,7 +55,7 @@ def build_export_dag(
         'BLOCK_RANGE=$($PYTHON3 bitcoinetl.py get_block_range_for_date -d $EXECUTION_DATE -p $PROVIDER_URI) && ' \
         'BLOCK_RANGE_ARRAY=(${BLOCK_RANGE//,/ }) && START_BLOCK=${BLOCK_RANGE_ARRAY[0]} && END_BLOCK=${BLOCK_RANGE_ARRAY[1]} && ' \
         'EXPORT_LOCATION_URI=gs://$OUTPUT_BUCKET/export && ' \
-        'export CLOUDSDK_PYTHON=/usr/local/bin/python2'
+        'export CLOUDSDK_PYTHON=/usr/bin/python2'
 
     export_blocks_and_transactions_command = \
         setup_command + ' && ' + \

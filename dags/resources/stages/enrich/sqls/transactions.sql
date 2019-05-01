@@ -1,11 +1,15 @@
 with flat_inputs as (
     select transactions.`hash`, transactions.block_timestamp, inputs.*
-    from {{dataset_name_raw}}.transactions as transactions,
+    from {{params.dataset_name_raw}}.transactions as transactions,
     unnest(inputs) as inputs
+    where true
+        {% if not params.load_all_partitions %}
+        and date(timestamp_seconds(transactions.block_timestamp)) = '{{ds}}'
+        {% endif %}
 ),
 flat_outputs as (
     select transactions.`hash`, transactions.block_timestamp, outputs.*
-    from {{dataset_name_raw}}.transactions as transactions,
+    from {{params.dataset_name_raw}}.transactions as transactions,
     unnest(outputs) as outputs
 ),
 enriched_flat_inputs as (
@@ -42,20 +46,20 @@ select
     (select sum(value) from unnest(grouped_enriched_inputs.inputs) as inputs) as input_value,
     (select sum(value) from unnest(transactions.outputs) as outputs) as output_value,
     array(
-      select as struct
-          inputs.index,
-          inputs.spent_transaction_hash,
-          inputs.spent_output_index,
-          inputs.script_asm,
-          inputs.script_hex,
-          inputs.sequence,
-          enriched_inputs.required_signatures,
-          enriched_inputs.type,
-          enriched_inputs.addresses,
-          enriched_inputs.value
-      from unnest(grouped_enriched_inputs.inputs) as enriched_inputs
-      join unnest(transactions.inputs) as inputs on inputs.index = enriched_inputs.index
-      order by inputs.index
+        select as struct
+            inputs.index,
+            inputs.spent_transaction_hash,
+            inputs.spent_output_index,
+            inputs.script_asm,
+            inputs.script_hex,
+            inputs.sequence,
+            enriched_inputs.required_signatures,
+            enriched_inputs.type,
+            enriched_inputs.addresses,
+            enriched_inputs.value
+        from unnest(grouped_enriched_inputs.inputs) as enriched_inputs
+        join unnest(transactions.inputs) as inputs on inputs.index = enriched_inputs.index
+        order by inputs.index
     ) as inputs,
     transactions.outputs,
     if(not transactions.is_coinbase,
@@ -63,6 +67,10 @@ select
         coalesce((select sum(value) from unnest(grouped_enriched_inputs.inputs) as inputs), 0) -
         coalesce((select sum(value) from unnest(transactions.outputs) as outputs), 0)
     ), 0) as fee
-from {{dataset_name_raw}}.transactions as transactions
+from {{params.dataset_name_raw}}.transactions as transactions
 left join grouped_enriched_inputs on grouped_enriched_inputs.`hash` = transactions.`hash`
     and grouped_enriched_inputs.block_timestamp = transactions.block_timestamp
+where true
+    {% if not params.load_all_partitions %}
+    and date(timestamp_seconds(transactions.block_timestamp)) = '{{ds}}'
+    {% endif %}
