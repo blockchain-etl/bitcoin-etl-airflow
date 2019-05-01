@@ -14,6 +14,7 @@ DAG = build_verify_streaming_dag(
     dag_id='litecoin_verify_streaming_dag',
     chain='litecoin',
     **read_verify_streaming_dag_vars(
-        var_prefix='litecoin_'
+        var_prefix='litecoin_',
+        max_lag_in_minutes=110
     )
 )

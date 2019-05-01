@@ -14,6 +14,7 @@ DAG = build_verify_streaming_dag(
     dag_id='zcash_verify_streaming_dag',
     chain='zcash',
     **read_verify_streaming_dag_vars(
-        var_prefix='zcash_'
+        var_prefix='zcash_',
+        max_lag_in_minutes=140,
     )
 )

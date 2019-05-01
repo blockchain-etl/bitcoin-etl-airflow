@@ -14,6 +14,7 @@ DAG = build_verify_streaming_dag(
     dag_id='dash_verify_streaming_dag',
     chain='dash',
     **read_verify_streaming_dag_vars(
-        var_prefix='dash_'
+        var_prefix='dash_',
+        max_lag_in_minutes=140,
     )
 )

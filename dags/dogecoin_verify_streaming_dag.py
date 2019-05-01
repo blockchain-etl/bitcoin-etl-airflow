@@ -14,6 +14,7 @@ DAG = build_verify_streaming_dag(
     dag_id='dogecoin_verify_streaming_dag',
     chain='dogecoin',
     **read_verify_streaming_dag_vars(
-        var_prefix='dogecoin_'
+        var_prefix='dogecoin_',
+        max_lag_in_minutes=140,
     )
 )
