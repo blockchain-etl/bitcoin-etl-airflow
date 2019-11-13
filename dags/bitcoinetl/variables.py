@@ -72,6 +72,7 @@ def parse_bool(bool_string, default=True):
     else:
         return bool_string.lower() in ["true", "yes"]
 
+
 def to_int(val):
     if val is None:
         return None
