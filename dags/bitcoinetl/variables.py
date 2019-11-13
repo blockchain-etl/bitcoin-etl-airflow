@@ -15,9 +15,9 @@ def read_export_dag_vars(var_prefix, **kwargs):
         'export_schedule_interval': read_var('export_schedule_interval', var_prefix, True, **kwargs),
         'provider_uri': provider_uri,
         'notification_emails': read_var('notification_emails', None, False, **kwargs),
-        'export_max_active_runs': read_var('export_max_active_runs', var_prefix, False, **kwargs),
-        'export_max_workers': int(read_var('export_max_workers', var_prefix, True, **kwargs)),
-        'export_batch_size': int(read_var('export_batch_size', var_prefix, True, **kwargs)),
+        'export_max_active_runs': to_int(read_var('export_max_active_runs', var_prefix, False, **kwargs)),
+        'export_max_workers': to_int(read_var('export_max_workers', var_prefix, True, **kwargs)),
+        'export_batch_size': to_int(read_var('export_batch_size', var_prefix, True, **kwargs)),
     }
 
     return vars
@@ -71,3 +71,8 @@ def parse_bool(bool_string, default=True):
         return default
     else:
         return bool_string.lower() in ["true", "yes"]
+
+def to_int(val):
+    if val is None:
+        return None
+    return int(val)
