@@ -39,20 +39,13 @@ def build_export_dag(
         schedule_interval=export_schedule_interval,
         max_active_runs=export_max_active_runs,
         default_args=default_dag_args)
-    # miniconda.tar contains Python home directory with bitcoin-etl dependencies install via pip
-    # Will get rid of this once Google Cloud Composer supports Python 3
-    install_python3_command = \
-        'cp $DAGS_FOLDER/resources/miniconda.tar . && ' \
-        'tar xvf miniconda.tar > untar_miniconda.log && ' \
-        'PYTHON3=$PWD/miniconda/bin/python3'
 
     setup_command = \
-        'set -o xtrace && set -o pipefail && ' + install_python3_command + \
-        ' && ' \
+        'set -o xtrace && set -o pipefail &&' \
         'git clone --branch $BITCOINETL_REPO_BRANCH http://github.com/blockchain-etl/bitcoin-etl && cd bitcoin-etl && ' \
         'export LC_ALL=C.UTF-8 && ' \
         'export LANG=C.UTF-8 && ' \
-        'BLOCK_RANGE=$($PYTHON3 bitcoinetl.py get_block_range_for_date -d $EXECUTION_DATE -p $PROVIDER_URI) && ' \
+        'BLOCK_RANGE=$(python3 bitcoinetl.py get_block_range_for_date -d $EXECUTION_DATE -p $PROVIDER_URI) && ' \
         'BLOCK_RANGE_ARRAY=(${BLOCK_RANGE//,/ }) && START_BLOCK=${BLOCK_RANGE_ARRAY[0]} && END_BLOCK=${BLOCK_RANGE_ARRAY[1]} && ' \
         'EXPORT_LOCATION_URI=gs://$OUTPUT_BUCKET/export && ' \
         'export CLOUDSDK_PYTHON=/usr/bin/python2'
@@ -60,11 +53,11 @@ def build_export_dag(
     export_blocks_and_transactions_command = \
         setup_command + ' && ' + \
         'echo $BLOCK_RANGE > blocks_meta.txt && ' \
-        '$PYTHON3 bitcoinetl.py export_blocks_and_transactions -c $CHAIN -b $EXPORT_BATCH_SIZE -w $EXPORT_MAX_WORKERS -s $START_BLOCK -e $END_BLOCK ' \
+        'python3 bitcoinetl.py export_blocks_and_transactions -c $CHAIN -b $EXPORT_BATCH_SIZE -w $EXPORT_MAX_WORKERS -s $START_BLOCK -e $END_BLOCK ' \
         '-p $PROVIDER_URI --blocks-output blocks.json --transactions-output transactions.json && ' \
-        '$PYTHON3 bitcoinetl.py filter_items -i blocks.json -o blocks_filtered.json ' \
+        'python3 bitcoinetl.py filter_items -i blocks.json -o blocks_filtered.json ' \
         '-p "datetime.datetime.fromtimestamp(item[\'timestamp\']).astimezone(datetime.timezone.utc).strftime(\'%Y-%m-%d\') == \'$EXECUTION_DATE\'" && ' \
-        '$PYTHON3 bitcoinetl.py filter_items -i transactions.json -o transactions_filtered.json ' \
+        'python3 bitcoinetl.py filter_items -i transactions.json -o transactions_filtered.json ' \
         '-p "datetime.datetime.fromtimestamp(item[\'block_timestamp\']).astimezone(datetime.timezone.utc).strftime(\'%Y-%m-%d\') == \'$EXECUTION_DATE\'" && ' \
         'gsutil cp blocks_filtered.json $EXPORT_LOCATION_URI/blocks/block_date=$EXECUTION_DATE/blocks.json && ' \
         'gsutil cp transactions_filtered.json $EXPORT_LOCATION_URI/transactions/block_date=$EXECUTION_DATE/transactions.json && ' \
